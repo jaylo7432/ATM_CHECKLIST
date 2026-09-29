@@ -1,0 +1,226 @@
+[
+  {
+    "stt": "1",
+    "atmid": "01000100",
+    "adress": "Pv oil Naxay",
+    "ipCam": "10.0.1.3",
+    "videoIp": "10.0.1.4",
+    "email": "jaylothirasack01@gmail.com"
+  },
+  {
+    "stt": "2",
+    "atmid": "01000200",
+    "adress": "Asain Mall",
+    "ipCam": "10.0.1.11",
+    "videoIp": "10.0.1.12",
+    "email": "asainmall@example.com"
+  },
+  {
+    "stt": "3",
+    "atmid": "01000300",
+    "adress": "CHOMPHET",
+    "ipCam": "10.0.1.19",
+    "videoIp": "10.0.1.20",
+    "email": "chomphet@example.com"
+  },
+  {
+    "stt": "4",
+    "atmid": "01000400",
+    "adress": "NONGTHA",
+    "ipCam": "10.0.1.147",
+    "videoIp": "10.0.1.148",
+    "email": "nongtha@example.com"
+  },
+  {
+    "stt": "5",
+    "atmid": "01000500",
+    "adress": "TSB",
+    "ipCam": "10.0.1.155",
+    "videoIp": "10.0.1.156",
+    "email": "tsb@example.com"
+  },
+  {
+    "stt": "6",
+    "atmid": "01000600",
+    "adress": "WAT AONGTEU",
+    "ipCam": "10.0.1.27",
+    "videoIp": "10.0.1.28",
+    "email": "wataongteu@example.com"
+  },
+  {
+    "stt": "7",
+    "atmid": "01000700",
+    "adress": "LTC SAILOM",
+    "ipCam": "10.0.1.35",
+    "videoIp": "10.0.1.36",
+    "email": "ltcsailom@example.com"
+  },
+  {
+    "stt": "8",
+    "atmid": "01000800",
+    "adress": "SIKHAI UNIT",
+    "ipCam": "10.2.128.101",
+    "videoIp": "10.2.128.102",
+    "email": "sikhaiunit@example.com"
+  },
+  {
+    "stt": "9",
+    "atmid": "01000900",
+    "adress": "MITTAPHAP HPT",
+    "ipCam": "10.0.1.43",
+    "videoIp": "10.0.1.44",
+    "email": "mittaphaphpt@example.com"
+  },
+  {
+    "stt": "10",
+    "atmid": "01001000",
+    "adress": "WATTAI UNIT",
+    "ipCam": "10.2.144.56",
+    "videoIp": "10.2.144.57",
+    "email": "wattaiunit@example.com"
+  },
+  {
+    "stt": "11",
+    "atmid": "01001100",
+    "adress": "HO INSIDE",
+    "ipCam": "10.0.1.51",
+    "videoIp": "10.0.1.52",
+    "email": "hoinside@example.com"
+  },
+  {
+    "stt": "12",
+    "atmid": "01001200",
+    "adress": "HO OUTSIDE",
+    "ipCam": "10.0.1.59",
+    "videoIp": "10.0.1.60",
+    "email": "hooutside@example.com"
+  },
+  {
+    "stt": "13",
+    "atmid": "01001300",
+    "adress": "FRIENDSHIP BG",
+    "ipCam": "10.0.1.163",
+    "videoIp": "10.0.1.164",
+    "email": "friendshipbg@example.com"
+  },
+  {
+    "stt": "14",
+    "atmid": "01001400",
+    "adress": "XANG3HUA",
+    "ipCam": "10.0.1.91",
+    "videoIp": "10.0.1.92",
+    "email": "xang3hua@example.com"
+  },
+  {
+    "stt": "15",
+    "atmid": "01001500",
+    "adress": "SOUTH BUT STT",
+    "ipCam": "10.0.1.99",
+    "videoIp": "10.0.1.100",
+    "email": "southbutstt@example.com"
+  },
+  {
+    "stt": "16",
+    "atmid": "01001600",
+    "adress": "MN MARKET",
+    "ipCam": "10.0.1.83",
+    "videoIp": "10.0.1.84",
+    "email": "mnmarket@example.com"
+  },
+  {
+    "stt": "17",
+    "atmid": "01001700",
+    "adress": "WATCHANH",
+    "ipCam": "10.0.1.67",
+    "videoIp": "10.0.1.68",
+    "email": "watchanh@example.com"
+  },
+  {
+    "stt": "18",
+    "atmid": "01001800",
+    "adress": "LTC NAMPHOU",
+    "ipCam": "10.0.1.75",
+    "videoIp": "10.0.1.76",
+    "email": "ltcnamphou@example.com"
+  },
+  {
+    "stt": "19",
+    "atmid": "01001900",
+    "adress": "LTC HO",
+    "ipCam": "10.0.1.107",
+    "videoIp": "10.0.1.108",
+    "email": "ltcho@example.com"
+  },
+  {
+    "stt": "20",
+    "atmid": "01002000",
+    "adress": "PVOIL PPSAK",
+    "ipCam": "10.0.1.115",
+    "videoIp": "10.0.1.116",
+    "email": "pvoilppsak@example.com"
+  },
+  {
+    "stt": "21",
+    "atmid": "01002100",
+    "adress": "DD UNIT",
+    "ipCam": "10.2.129.101",
+    "videoIp": "10.2.129.102",
+    "email": "ddunit@example.com"
+  },
+  {
+    "stt": "22",
+    "atmid": "01002200",
+    "adress": "DONNOUN UNIT",
+    "ipCam": "10.2.130.101",
+    "videoIp": "10.2.130.102",
+    "email": "Khanitthavongvilag@gmail.com"
+  },
+  {
+    "stt": "23",
+    "atmid": "01002300",
+    "adress": "HONGKAYASIN",
+    "ipCam": "10.0.1.123",
+    "videoIp": "10.0.1.124",
+    "email": "hongkayasin@example.com"
+  },
+  {
+    "stt": "24",
+    "atmid": "01002400",
+    "adress": "HARDXAIKHAO",
+    "ipCam": "10.0.1.131",
+    "videoIp": "10.0.1.132",
+    "email": "hardxaikhao@example.com"
+  },
+  {
+    "stt": "25",
+    "atmid": "01002500",
+    "adress": "ITEC UNIT",
+    "ipCam": "10.2.127.101",
+    "videoIp": "10.2.127.102",
+    "email": "itecunit@example.com"
+  },
+  {
+    "stt": "26",
+    "atmid": "01002600",
+    "adress": "PHONPAPAO",
+    "ipCam": "10.0.1.139",
+    "videoIp": "10.0.1.140",
+    "email": "phonpapao@example.com"
+  },
+  {
+    "stt": "1",
+    "atmid": "03000100",
+    "adress": "Luckmuong ATM3 (030-CHAMPASAK)",
+    "ipCam": "10.5.148.102",
+    "videoIp": "10.5.148.103",
+    "email": "luckmuongatm3030champasak@example.com"
+  },
+  {
+    "stt": "2",
+    "atmid": "03000200",
+    "adress": "Phonsaath (030-CHAMPASAK)",
+    "ipCam": "10.5.1.105",
+    "videoIp": "10.5.1.106",
+    "email": "phonsaath030champasak@example.com"
+  }
+]
