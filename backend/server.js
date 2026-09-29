@@ -269,10 +269,10 @@ return `<!DOCTYPE html>
   h1{font-size:16px;margin: 0 0 4px; }
   .meta { margin-bottom: 8px; color: #555; }
   table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #ffffff; padding: 2px 3px; text-align: center; }
+  th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
   th { background: #e9edf5; }
   td.left { text-align: left; }
-  tr.fault td { background: #fdecea; }
+    tr.fault td { background: #e7e1e1; }
   .box { display: inline-block; position: relative; width: 11px; height: 11px; border: 1px solid #333; vertical-align: middle; }
   .box.on::after {
     content: ''; position: absolute; left: 3px; top: -1px;
