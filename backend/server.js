@@ -25,7 +25,7 @@ try {
   console.warn('⚠️  "nodemailer" is not installed — run "npm install" first to enable email alerts.');
 }
 const crypto = require('crypto');
-const { checkLogin, getSites, insertAuditLog } = require('./db');
+const { checkLogin, getSites, insertAuditLog,getPool } = require('./db');
 
 // Very simple in-memory session store: token -> { username, displayName, expiresAt }
 // Fine for a small internal tool with one backend process. Tokens are lost on restart
@@ -66,6 +66,7 @@ function getClientIp(req) {
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const TEMPLATE_FILE = path.join(__dirname, 'default-rows.json');
+const LOCAL_USERS_FILE = path.join(__dirname, 'local-users.json');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
 
@@ -171,7 +172,25 @@ function getFailedItems(row) {
   return Object.keys(FIELD_LABELS)
     .filter((key) => row[key] === true)
     .map((key) => FIELD_LABELS[key]);
+
 }
+async function checkLoginWithFallback(username,password){
+  try{
+    const user = await checkLogin(username,password);
+    if(user) return user;
+    const pool = await getPool();
+    if (pool) return null;
+  }catch(e){
+    console.warn("oracle login check failed,falling back to local-user.json:",e.message);
+  }
+  if(!fs.existsSync(LOCAL_USERS_FILE)) return null;
+  const users = JSON.parse(fs.readFileSync(LOCAL_USERS_FILE,'utf-8'));
+  const match = users.find((u) => u.username === username && u.password === password);
+  if(!match) return null;
+  return{username:match.username,displayName:match.displayName || match.username};
+}
+
+
 
 async function sendAlertEmails(date, rows) {
   const transporter = getTransporter();
@@ -390,7 +409,7 @@ const server = http.createServer(async (req, res) => {
       }
       let user;
       try {
-        user = await checkLogin(username, password);
+        user = await checkLoginWithFallback(username, password);
       } catch (e) {
         return sendJSON(res, 500, { error: String(e.message || e) });
       }
@@ -445,7 +464,12 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    const DEFAULT_CHECKED = { camConectConnect: true };
+    const DEFAULT_CHECKED = { 
+      camConectConnect: true,
+        camWorkConnect: true,
+        drvConectConnect: true,
+        camSaveConnect: true,
+    };
 
     const rows = baseRows.map((site) => {
       const prev = statusByAtmid[site.atmid];

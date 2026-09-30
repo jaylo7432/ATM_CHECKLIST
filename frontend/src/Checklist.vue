@@ -72,14 +72,14 @@
             <td class="loc readonly-cell">{{ row.adress }}</td>
             <td class="readonly-cell">{{ row.ipCam }}</td>
             <td class="readonly-cell">{{ row.videoIp }}</td>
-            <td class="box"><input type="checkbox" v-model="row.camConectConnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camConectDisconnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camWorkConnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camWorkDisconnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.drvConectConnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.drvConectDisconnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camSaveConnect" @change="saved = false" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camSaveDisconnect" @change="saved = false" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camConectConnect" @change="toggleExclusive(row, 'camConectConnect', 'camConectDisconnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camConectDisconnect" @change="toggleExclusive(row, 'camConectDisconnect', 'camConectConnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camWorkConnect" @change="toggleExclusive(row, 'camWorkConnect', 'camWorkDisconnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camWorkDisconnect" @change="toggleExclusive(row, 'camWorkDisconnect', 'camWorkConnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.drvConectConnect" @change="toggleExclusive(row, 'drvConectConnect', 'drvConectDisconnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.drvConectDisconnect" @change="toggleExclusive(row, 'drvConectDisconnect', 'drvConectConnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camSaveConnect" @change="toggleExclusive(row, 'camSaveConnect', 'camSaveDisconnect', $event)" /></td>
+            <td class="box"><input type="checkbox" v-model="row.camSaveDisconnect" @change="toggleExclusive(row, 'camSaveDisconnect', 'camSaveConnect', $event)" /></td>
           </tr>
           <tr v-if="rows.length === 0">
             <td colspan="13" style="padding:24px;color:#999;">No data for this date.</td>
@@ -145,6 +145,15 @@ export default {
     hasError(row) {
       return FAULT_FIELDS.some((key) => row[key]);
     },
+
+    toggleExclusive(row, changedKey, pairKey, event) {
+      if (event.target.checked) {
+        row[pairKey] = false;
+      }
+      this.saved = false;
+    },
+
+
     // fetch wrapper that attaches the login token and logs the user out
     // automatically if the session has expired (401 response)
 
@@ -185,7 +194,7 @@ export default {
       this.rows.forEach((r) => {
         CHECKBOX_FIELDS.forEach((key) => {
           // keep the first box (Cam_conect / connect) ticked, clear the rest
-          r[key] = key === 'camConectConnect';
+          r[key] = ['camConectConnect', 'camWorkConnect', 'drvConectConnect', 'camSaveConnect'].includes(key);
         });
       });
       this.saved = false;
