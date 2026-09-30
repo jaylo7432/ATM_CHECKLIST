@@ -5,6 +5,7 @@
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { autoCommit } = require('oracledb');
 
 let oracledb;
 try {
@@ -89,6 +90,14 @@ async function getSites() {
     { atmid: 'atmid', adress: 'adress', ipCam: 'ip_cam', videoIp: 'video_ip', email: 'email' },
     (cfg.db && cfg.db.sitesColumns) || {}
   );
+  return {table,cols};
+
+  async function getSites() {
+    const p = await getPool();
+    if(!p) return null;
+    const {table,cols} = getSitesTableConfig();
+  }
+
   let conn;
   try {
     conn = await p.getConnection();
@@ -102,6 +111,71 @@ async function getSites() {
     if (conn) await conn.close();
   }
 }
+
+async function createSite(site) {
+  const p = await getPool();
+  if (!p) throw new Error('Database is not configured');
+  const { table, cols } = getSitesTableConfig();
+  let conn;
+  try {
+    conn = await p.getConnection();
+    await conn.execute(
+      `INSERT INTO ${table} (${cols.atmid}, ${cols.adress}, ${cols.ipCam}, ${cols.videoIp}, ${cols.email})
+       VALUES (:atmid, :adress, :ipCam, :videoIp, :email)`,
+      {
+        atmid: site.atmid,
+        adress: site.adress,
+        ipCam: site.ipCam || null,
+        videoIp: site.videoIp || null,
+        email: site.email || null,
+      },
+      {autoCommit:true}
+    );
+  } finally{
+    if(conn) await conn.close();
+  }
+  }
+  
+  async function updateSite(atmid,updates) {
+    const p = await getPool();
+    if(!p) throw new Error('Database is not configured');
+    const{tale,cols} =getSitesTableConfig();
+    let conn;
+
+    try{
+      conn = await p.getConnection();
+      await conn.execute(
+         `UPDATE ${table}
+         SET ${cols.adress} = : adress,${cols.ipCam} = :ipCam,${cols.videoIp} = :viedeoIp,${cols.email} = :email
+         WHERE ${cols.atmid} = :atmid`,
+         {
+          atmid,
+          adress:updates.adress,
+          ipCam:updates.ipCam || null,
+          videoIp:updates.videoIp || null,
+          email:updates.email || null,
+         },
+         {autoCommit:true}
+      );
+    }finally{
+      if(conn) await conn.close();
+    }
+  }
+
+  async function deleteSite(atmid) {
+    const p = await qetPool();
+    if(!p) throw new Error('Database is not configured');
+    const{table,cols} = getSitesTableConfig();
+    let conn;
+    try{
+      conn = await p.getConnection();
+      await conn.execute(`DELETE FROM ${table} WHERE ${cols.atmid} = :atmid`, { atmid }, { autoCommit: true });
+    } finally{
+      if(conn) await conn.close();
+    }
+  }
+
+
 
 // Records one row into audit_logs (per spec 7.3). Never throws — logging
 // failures shouldn't block the actual login/save the user is doing, so
@@ -133,4 +207,4 @@ async function insertAuditLog({ userId, actionType, targetRef, ipAddress }) {
   }
 }
 
-module.exports = { getPool, checkLogin, getSites, insertAuditLog };
+module.exports = { getPool, checkLogin, getSites, insertAuditLog, createSite, updateSite, deleteSite };

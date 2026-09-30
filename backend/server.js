@@ -25,7 +25,7 @@ try {
   console.warn('⚠️  "nodemailer" is not installed — run "npm install" first to enable email alerts.');
 }
 const crypto = require('crypto');
-const { checkLogin, getSites, insertAuditLog,getPool } = require('./db');
+const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite } = require('./db');
 
 // Very simple in-memory session store: token -> { username, displayName, expiresAt }
 // Fine for a small internal tool with one backend process. Tokens are lost on restart
@@ -189,7 +189,15 @@ async function checkLoginWithFallback(username,password){
   if(!match) return null;
   return{username:match.username,displayName:match.displayName || match.username};
 }
+//===========ATM master data CRUD(oracle first,locfile fallbacl)=====================
+function readLocalSite(){
+  if(!fs.existsSync(TEMPLATE_FILE)) return[];
+  return JSON.parse(fs.readFileSync(TEMPLATE_FILE,'utf-8'));
+}
 
+function writeLocalStie(sites){
+  fs.writeFileSync(TEMPLATE_FILE,JSON.stringify(sites,null,2),'utf-8');
+}
 
 
 async function sendAlertEmails(date, rows) {
@@ -433,7 +441,7 @@ const server = http.createServer(async (req, res) => {
   // Everything under /api/checklist and /api/dates requires a valid login,
   // UNLESS "requireLogin": false in config.json (useful while you're still
   // setting up MySQL / the users table and just want the checklist working).
-  if (pathname.startsWith('/api/checklist') || pathname.startsWith('/api/dates') || pathname.startsWith('/api/report')) {
+  if (pathname.startsWith('/api/checklist') || pathname.startsWith('/api/dates') || pathname.startsWith('/api/atms')) {
     const cfg = loadConfig();
     const requireLogin = !!(cfg && cfg.requireLogin);
     if (requireLogin) {
@@ -520,6 +528,14 @@ const server = http.createServer(async (req, res) => {
       .reverse();
     return sendJSON(res, 200, { dates: files });
   }
+
+  if(pathname ==='/api/atms' && req.method === 'GET'){
+    const rows = await getBaseRows();
+    return sendJSON(res,200,{rows});
+  }
+
+
+
 
   if (pathname === '/api/report/pdf' && req.method ==='GET'){
     const date = parsed.query.date;
