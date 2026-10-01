@@ -533,7 +533,95 @@ const server = http.createServer(async (req, res) => {
     const rows = await getBaseRows();
     return sendJSON(res,200,{rows});
   }
+  if(pathname ==='/api/atms'&& req.method === 'POST'){
+    try{
+      const body = await readBody(req);
+      if(!body.atmid || !body.adress){
+        return sendJSON(res,400,{error:'atmid and dress are required'});
+      }
+      const session = getSession(getBearerToken(req));
+      try{
+        await createSite(body);
+      }catch(e){
+        const sites = readLocalSite();
+        if(sites.some((s) => s.atmid === body.atmid)) {
+          return sendJSON(res,409,{error:'ATMID already exits'});
+      }
+      sites.push({
+        atmid:body.atmid,
+        adress:body.adress,
+        ipCam:body.ipCam || '',
+        videoIp:body.videoIp|| '',
+        email:body.email|| '',
+      });
+      writeLocalStie(sites);
+    }
 
+    insertAuditLog({
+      userId:session? session.username:'guest',
+      actionType:'CREATE_ATM',
+      targetRef:body.atmid,
+      ipAddress:getClientIp(req),
+    });
+    return sendJSON(res,200,{ok:true});
+  } catch(e){
+    return sendJSON(res,400,{error:'bad request',detail:String(e)});
+  }
+  }
+
+  const atmMatch = pathname.match(/^\/api\/atms\/([^/]+)$/);
+  if(atmMatch && req.method ==='PUT'){
+    const atmid = decodeURIComponent(atmMatch[1]);
+    try{
+      const body = await readBody(req);
+      const session = getSession(getBearerToken(req));
+      try{
+        await updateSite(atmid,body);
+      }catch(e){
+        const sites = readLocalSite();
+        const idx = sites.findIndex((s) => s.atmid === atmid);
+        if (idx===-1) return sendJSON(res,400,{error:'ATMID not found'});
+        sites[idx] = {
+          ...sites[idx],
+          adress:body.adress??sites[idx].adress,
+          ipCam:body.ipCam??sites[idx].ipCam,
+          videoIp:body.videoIp??sites[idx].videoIp,
+          email:body.email??sites[idx].email,
+        };
+        whileLocalSties(sites);
+      }
+      insertAuditLog({
+        userId:session? session.username:'guest',
+        actionType:'UPDATE_ATM',
+        targetRef:atmid,
+        ipAddress:getClientIp(req),
+      });
+      return sendJSON(res,200,{ok:true});
+    }catch(e){
+      return sendJSON(res,400,{error:"bad request",detail:String(e)});
+    }
+  }
+
+  if(atmMatch&&req.method === 'DELETE'){
+    const atmid = decodeURIComponent(atmMatch[1]);
+    const session = getSession(getBearerToken(req));
+
+
+    try{
+      await deleteSite(atmid);
+    }catch(e){
+      const sites = readLocalSite();
+      const next = sites.filter((s) => s.atmid! == atmid);
+      writeLocalStie(next);
+    }
+    insertAuditLog({
+      userId:session? session.username:'guest',
+      actionType:'DELETE_ATM',
+      targetRef:atmid,
+      ipAddress:getClientIp(req),
+    });
+    return sendJSON(res,200,{ok:true});
+  }
 
 
 
