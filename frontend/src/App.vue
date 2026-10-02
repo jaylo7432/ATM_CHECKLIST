@@ -5,7 +5,7 @@
     <template v-else>
       <div class="page-tabs">
         <button :class="{ active: page === 'checklist' }" @click="page = 'checklist'">📋 ATM Check</button>
-        <button :class="{ active: page === 'admin' }" @click="page = 'admin'">🗂 Manage ATMs</button>
+        <button :class="{ active: page === 'admin' }" @click="page = 'admin'"> Manage ATMs</button>
       </div>
       <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" />
       <AtmAdmin v-else :token="token" :user="user" @logout="logout" />

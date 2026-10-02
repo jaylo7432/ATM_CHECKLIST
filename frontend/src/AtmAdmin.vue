@@ -4,7 +4,7 @@
       <span>👤 {{ user.username === 'guest' ? 'Login is currently disabled' : ('Logged in as ' + (user.displayName || user.username)) }}</span>
       <button v-if="user.username !== 'guest'" class="btn-logout" @click="$emit('logout')">Log out</button>
     </div>
-    <h1>🗂 Manage ATM Sites</h1>
+    <h1> Manage ATM Sites</h1>
 
     <div class="toolbar">
       <button class="btn-save" @click="openNew">➕ Add new site</button>
