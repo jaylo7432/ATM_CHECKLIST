@@ -190,12 +190,12 @@ async function checkLoginWithFallback(username,password){
   return{username:match.username,displayName:match.displayName || match.username};
 }
 //===========ATM master data CRUD(oracle first,locfile fallbacl)=====================
-function readLocalSite(){
+function readLocalSites(){
   if(!fs.existsSync(TEMPLATE_FILE)) return[];
   return JSON.parse(fs.readFileSync(TEMPLATE_FILE,'utf-8'));
 }
 
-function writeLocalStie(sites){
+function writeLocalSites(sites){
   fs.writeFileSync(TEMPLATE_FILE,JSON.stringify(sites,null,2),'utf-8');
 }
 
@@ -543,7 +543,7 @@ const server = http.createServer(async (req, res) => {
       try{
         await createSite(body);
       }catch(e){
-        const sites = readLocalSite();
+        const sites = readLocalSites();
         if(sites.some((s) => s.atmid === body.atmid)) {
           return sendJSON(res,409,{error:'ATMID already exits'});
       }
@@ -554,7 +554,7 @@ const server = http.createServer(async (req, res) => {
         videoIp:body.videoIp|| '',
         email:body.email|| '',
       });
-      writeLocalStie(sites);
+      writeLocalSites(sites);
     }
 
     insertAuditLog({
@@ -578,7 +578,7 @@ const server = http.createServer(async (req, res) => {
       try{
         await updateSite(atmid,body);
       }catch(e){
-        const sites = readLocalSite();
+        const sites = readLocalSites();
         const idx = sites.findIndex((s) => s.atmid === atmid);
         if (idx===-1) return sendJSON(res,400,{error:'ATMID not found'});
         sites[idx] = {
@@ -588,7 +588,7 @@ const server = http.createServer(async (req, res) => {
           videoIp:body.videoIp??sites[idx].videoIp,
           email:body.email??sites[idx].email,
         };
-        whileLocalSties(sites);
+        writeLocalSites(sites);
       }
       insertAuditLog({
         userId:session? session.username:'guest',
@@ -610,9 +610,9 @@ const server = http.createServer(async (req, res) => {
     try{
       await deleteSite(atmid);
     }catch(e){
-      const sites = readLocalSite();
-      const next = sites.filter((s) => s.atmid! == atmid);
-      writeLocalStie(next);
+      const sites = readLocalSites();
+      const next = sites.filter((s) => s.atmid !== atmid);
+      writeLocalSites(next);
     }
     insertAuditLog({
       userId:session? session.username:'guest',

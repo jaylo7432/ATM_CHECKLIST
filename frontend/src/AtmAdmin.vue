@@ -80,7 +80,7 @@ export default{
     name:"AtmAdmin",
     props:{
         token:{type:String,required:true},
-        user:{type;Object,required:true},
+        user:{type:Object,required:true},
     },
     emits:['logout'],
     data(){
@@ -93,28 +93,100 @@ export default{
             form: { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' },
         };
     },
-    methods:{
-async authFetch(url, options = {}) {
-      const res = await fetch(url, {
-        ...options,
-        headers: {
-          ...(options.headers || {}),
-          Authorization: `Bearer ${this.token}`,
-        },
-      });
 
-        if (res.status === 401){
-            alert('Your session has expired . please lohin angain');
-            this.$emit('Logout');
-            throw new Error('unauthorized');
-            }
-            return res;
-        },
-        async load(){
-            
+      methods: {
+      async authFetch(url, options = {}) {
+        const res = await fetch(url, {
+          ...options,
+          headers: {
+            ...(options.headers || {}),
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        if (res.status === 401) {
+          alert('Your session has expired. Please log in again.');
+          this.$emit('logout');
+          throw new Error('unauthorized');
         }
-
-    }
+        return res;
+      },
+      async load() {
+        this.loading = true;
+        try {
+          const res = await this.authFetch('/api/atms');
+          const data = await res.json();
+          this.sites = data.rows || [];
+        } catch (e) {
+          if (e.message !== 'unauthorized') alert('Failed to load sites: ' + e);
+        } finally {
+          this.loading = false;
+        }
+      },
+      openNew() {
+        this.editingAtmid = null;
+        this.form = { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' };
+        this.formOpen = true;
+      },
+      openEdit(site) {
+        this.editingAtmid = site.atmid;
+        this.form = { ...site };
+        this.formOpen = true;
+      },
+      closeForm() {
+        this.formOpen = false;
+      },
+      async save() {
+        if (!this.form.atmid || !this.form.adress) {
+          alert('ATMID and Adress are required');
+          return;
+        }
+        this.saving = true;
+        try {
+          let res;
+          if (this.editingAtmid) {
+            res = await this.authFetch(`/api/atms/${encodeURIComponent(this.editingAtmid)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.form),
+            });
+          } else {
+            res = await this.authFetch('/api/atms', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.form),
+            });
+          }
+          const data = await res.json();
+          if (!data.ok) {
+            alert('Save failed: ' + (data.error || 'unknown error'));
+            return;
+          }
+          this.formOpen = false;
+          await this.load();
+        } catch (e) {
+          if (e.message !== 'unauthorized') alert('Save failed: ' + e);
+        } finally {
+          this.saving = false;
+        }
+      },
+      async remove(site) {
+        if (!confirm(`Delete ${site.atmid} (${site.adress})? This cannot be undone.`)) return;
+        try {
+          const res = await this.authFetch(`/api/atms/${encodeURIComponent(site.atmid)}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.ok) {
+            alert('Delete failed: ' + (data.error || 'unknown error'));
+            return;
+          }
+          await this.load();
+        } catch (e) {
+          if (e.message !== 'unauthorized') alert('Delete failed: ' + e);
+        }
+      },
+    },  
+    mounted(){
+      this.load();
+    },
 }
 
 </script>

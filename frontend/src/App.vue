@@ -1,24 +1,36 @@
 <template>
-  <div v-if="!checkedAuthConfig" class="auth-check-loading">Loading...</div>
-  <Login v-else-if="!token" @login-success="onLoginSuccess" />
-  <Checklist v-else :token="token" :user="user" @logout="logout" />
+  <div id="app-root">
+    <div v-if="!checkedAuthConfig" class="auth-check-loading">Loading...</div>
+    <Login v-else-if="!token" @login-success="onLoginSuccess" />
+    <template v-else>
+      <div class="page-tabs">
+        <button :class="{ active: page === 'checklist' }" @click="page = 'checklist'">📋 ATM Check</button>
+        <button :class="{ active: page === 'admin' }" @click="page = 'admin'">🗂 Manage ATMs</button>
+      </div>
+      <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" />
+      <AtmAdmin v-else :token="token" :user="user" @logout="logout" />
+    </template>
+  </div>
 </template>
+
 
 <script>
 import Login from './Login.vue';
 import Checklist from './Checklist.vue';
+import AtmAdmin from './AtmAdmin.vue';
 
 const STORAGE_KEY = 'atm_checklist_session';
 
 export default {
   name: 'App',
-  components: { Login, Checklist },
+  components: { Login, Checklist,AtmAdmin },
   data() {
     return {
       token: null,
       user: null,
       requireLogin: true, // assume true until we hear back from the backend
       checkedAuthConfig: false,
+      page:'checklist',
     };
   },
   methods: {

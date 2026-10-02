@@ -218,9 +218,9 @@
   {
     "stt": "2",
     "atmid": "03000200",
-    "adress": "Phonsaath (030-CHAMPASAK)",
-    "ipCam": "10.5.1.105",
-    "videoIp": "10.5.1.106",
+    "adress": "Phonsaath (030-CHAMPAAAASAK)",
+    "ipCam": "10.5.1.105.009",
+    "videoIp": "10.5.1.106.107",
     "email": "phonsaath030champasak@example.com"
   }
 ]
