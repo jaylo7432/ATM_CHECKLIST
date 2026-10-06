@@ -5,9 +5,12 @@
     <template v-else>
       <div class="page-tabs">
         <button :class="{ active: page === 'checklist' }" @click="page = 'checklist'">📋 ATM Check</button>
+        <button :class="{ active: page === 'simcheck' }" @click="page = 'simcheck'"> 📶 SIM Check</button>
         <button :class="{ active: page === 'admin' }" @click="page = 'admin'"> Manage ATMs</button>
+        
       </div>
       <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" />
+      <SimCheck v-else-if="page === 'simcheck'" :token="token" :user="user" @logout="logout" />
       <AtmAdmin v-else :token="token" :user="user" @logout="logout" />
     </template>
   </div>
@@ -18,12 +21,13 @@
 import Login from './Login.vue';
 import Checklist from './Checklist.vue';
 import AtmAdmin from './AtmAdmin.vue';
+import SimCheck from './SimCheck.vue';
 
 const STORAGE_KEY = 'atm_checklist_session';
 
 export default {
   name: 'App',
-  components: { Login, Checklist,AtmAdmin },
+  components: { Login, Checklist,AtmAdmin,SimCheck },
   data() {
     return {
       token: null,

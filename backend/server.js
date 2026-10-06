@@ -67,6 +67,9 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const TEMPLATE_FILE = path.join(__dirname, 'default-rows.json');
 const LOCAL_USERS_FILE = path.join(__dirname, 'local-users.json');
+const SIM_DATA_DIR = path.join(__dirname, 'data-sim');
+if (!fs.existsSync(SIM_DATA_DIR)) fs.mkdirSync(SIM_DATA_DIR, { recursive: true });
+
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const FRONTEND_DIST = path.join(__dirname, '..', 'frontend', 'dist');
 
@@ -165,6 +168,15 @@ async function getBaseRows() {
     return JSON.parse(fs.readFileSync(TEMPLATE_FILE, 'utf-8'));
   }
   return [];
+}
+
+async function getSimBaseRows() {
+  const sites = await getBaseRows();
+  return sites.map((s) => ({
+    atmid: s.atmid,
+    adress: s.adress,
+    ipBaoDong: s.ipBaoDong || '',
+  }));
 }
 
 function getFailedItems(row) {
@@ -438,10 +450,11 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, 200, { username: session.username, displayName: session.displayName });
   }
 
+
   // Everything under /api/checklist and /api/dates requires a valid login,
   // UNLESS "requireLogin": false in config.json (useful while you're still
   // setting up MySQL / the users table and just want the checklist working).
-  if (pathname.startsWith('/api/checklist') || pathname.startsWith('/api/dates') || pathname.startsWith('/api/atms')) {
+  if (pathname.startsWith('/api/checklist') || pathname.startsWith('/api/dates') || pathname.startsWith('/api/atms')|| pathname.startsWith('/api/simcheck')) {
     const cfg = loadConfig();
     const requireLogin = !!(cfg && cfg.requireLogin);
     if (requireLogin) {
@@ -518,6 +531,51 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 400, { error: 'bad request', detail: String(e) });
     }
   }
+
+ if (pathname === '/api/simcheck' && req.method === 'GET') {
+  const date = parsed.query.date;
+  const baseRows = await getSimBaseRows();
+  const simFile = path.join(SIM_DATA_DIR, `${date}.json`);
+  let saved = null;
+  if (fs.existsSync(simFile)) saved = JSON.parse(fs.readFileSync(simFile, 'utf-8'));
+  const DEFAULT_CHECKED = { connStatusConnect: true, alarmOff: true, connectTypeWan: true, statusConnect: true };
+  const rows = baseRows.map((base) => {
+    const prev = saved && saved.rows ? saved.rows.find((r) => r.atmid === base.atmid) : null;
+    const row = { ...base };
+    ['connStatusConnect', 'connStatusDisconnect', 'alarmOff', 'alarmOn', 'connectTypeWan', 'connectTypeGprs', 'statusConnect', 'statusLost'].forEach((key) => {
+      row[key] = prev ? !!prev[key] : !!DEFAULT_CHECKED[key];
+    });
+    return row;
+  });
+  sendJSON(res, 200, { rows, savedAt: saved ? saved.savedAt : null });
+  return;
+}
+
+if (pathname === '/api/simcheck' && req.method === 'POST') {
+  const body = await readBody(req);
+  const savedAt = new Date().toLocaleString();
+  const simFile = path.join(SIM_DATA_DIR, `${body.date}.json`);
+  fs.writeFileSync(simFile, JSON.stringify({ rows: body.rows, savedAt }, null, 2), 'utf-8');
+  insertAuditLog({
+    userId: getSession(getBearerToken(req))?.username || 'unknown',
+    actionType: 'SUBMIT_SIM_INSPECTION',
+    targetRef: body.date,
+    ipAddress: getClientIp(req),
+  });
+  sendJSON(res, 200, { ok: true });
+  return;
+}
+
+
+
+
+
+
+
+
+
+
+
 
   if (pathname === '/api/dates' && req.method === 'GET') {
     const files = fs

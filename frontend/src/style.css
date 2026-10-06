@@ -10,7 +10,7 @@ body {
   background: #fdfdfd;
   margin: 0;
   padding: 24px;
-  color: #1a1a1a;
+  color: #271a1a;
 }
 .wrap { max-width: 1450px; margin: 0 auto; }
 
@@ -342,4 +342,8 @@ td.box input[type="checkbox"] {
   gap: 10px;
   margin-top: 8px;
   padding-top: 8px;
+}
+
+.field-error{
+  color: rgba(215, 2, 2, 0.852);
 }
