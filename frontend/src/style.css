@@ -231,7 +231,7 @@ thead th {
 }
 
 thead tr:first-child th { top: 0; }
-thead tr:last-child th { top: 33px; }
+thead tr:last-child th { top: 33px; width:90px; }
 
 th.sub { font-weight: 500; 
   font-size: 12px; 

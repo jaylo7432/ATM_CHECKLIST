@@ -85,12 +85,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>ATM</th>
-                    <th>Adress</th>
-                    <th>IP_CAM</th>
-                    <th>Video_IP</th>
-                    <th>Alert email</th>
-                    <th></th>
+                    <th rowspan="2">ATM</th>
+                    <th rowspan="2">Adress</th>
+                    <th rowspan="2">IP_CAM</th>
+                    <th rowspan="2">Video_IP</th>
+                    <th rowspan="2">Alert email</th>
+                    <th rowspan="2"></th>
                 </tr>
             </thead>
             <tbody>
@@ -274,3 +274,10 @@ export default{
     },
 }
 </script>
+
+<style scoped>
+thead tr:last-child th {
+  top: 0;
+}
+
+</style>

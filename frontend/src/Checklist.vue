@@ -33,8 +33,7 @@
       <div
         v-for="r in (emailReport.results || [])"
         :key="r.atmid"
-        :class="r.ok ? 'line-ok' : 'line-err'"
-      >
+        :class="r.ok ? 'line-ok' : 'line-err'">
         {{ r.ok ? '✔' : '✖' }} {{ r.location }} ({{ r.atmid }}) {{ r.ok ? ('→ ' + r.to) : ('- ' + r.reason) }}
       </div>
     </div>

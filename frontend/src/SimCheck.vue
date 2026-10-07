@@ -16,6 +16,21 @@
       <span v-if="savedAt" style="font-size:13px;color:#2a8f4a;">Saved at {{ savedAt }}</span>
     </div>
 
+<div class="email-report" v-if="emailReport">
+  <div v-if="emailReport.note" class="note">ℹ️ {{ emailReport.note }}</div>
+  <div v-if="emailReport.sent !== undefined">
+    Alert emails sent: <b>{{ emailReport.sent }}</b> site(s) successful,
+    <b>{{ emailReport.skipped }}</b> site(s) failed to send.
+  </div>
+  <div
+    v-for="r in (emailReport.results || [])"
+    :key="r.atmid"
+    :class="r.ok ? 'line-ok' : 'line-err'"
+  >
+    {{ r.ok ? '✔' : '✖' }} {{ r.location }} ({{ r.atmid }}) {{ r.ok ? ('→ ' + r.to) : ('- ' + r.reason) }}
+  </div>
+</div>
+
     <div class="table-scroll">
       <table>
         <thead>
@@ -23,10 +38,10 @@
             <th rowspan="2">ATMID</th>
             <th rowspan="2">Adress</th>
             <th rowspan="2">Alarm IP</th>
-            <th colspan="2">Connection Status</th>
-            <th colspan="2">Alarm</th>
-            <th colspan="2">Connect Type</th>
-            <th colspan="2">Status</th>
+            <th colspan="2" class="col-group-title">Connection Status</th>
+            <th colspan="2" class="col-group-title">Alarm</th>
+            <th colspan="2" class="col-group-title">Connect Type</th>
+            <th colspan="2" class="col-group-title">Status</th>
           </tr>
           <tr>
             <th>Connected</th>
@@ -40,22 +55,22 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row.atmid" :class="{ fault: isFault(row) }">
+          <tr v-for="row in rows" :key="row.atmid" :class="{ 'row-error': isFault(row) }">
             <td>{{ row.atmid }}</td>
             <td class="loc">{{ row.adress }}</td>
             <td>{{ row.ipBaoDong }}</td>
 
-            <td><input type="checkbox" v-model="row.connStatusConnect" @change="toggleExclusive(row, 'connStatusConnect', 'connStatusDisconnect', $event)" /></td>
-            <td><input type="checkbox" v-model="row.connStatusDisconnect" @change="toggleExclusive(row, 'connStatusDisconnect', 'connStatusConnect', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.connStatusConnect" @change="toggleExclusive(row, 'connStatusConnect', 'connStatusDisconnect', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.connStatusDisconnect" @change="toggleExclusive(row, 'connStatusDisconnect', 'connStatusConnect', $event)" /></td>
 
-            <td><input type="checkbox" v-model="row.alarmOff" @change="toggleExclusive(row, 'alarmOff', 'alarmOn', $event)" /></td>
-            <td><input type="checkbox" v-model="row.alarmOn" @change="toggleExclusive(row, 'alarmOn', 'alarmOff', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.alarmOff" @change="toggleExclusive(row, 'alarmOff', 'alarmOn', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.alarmOn" @change="toggleExclusive(row, 'alarmOn', 'alarmOff', $event)" /></td>
 
-            <td><input type="checkbox" v-model="row.connectTypeWan" @change="toggleExclusive(row, 'connectTypeWan', 'connectTypeGprs', $event)" /></td>
-            <td><input type="checkbox" v-model="row.connectTypeGprs" @change="toggleExclusive(row, 'connectTypeGprs', 'connectTypeWan', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.connectTypeWan" @change="toggleExclusive(row, 'connectTypeWan', 'connectTypeGprs', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.connectTypeGprs" @change="toggleExclusive(row, 'connectTypeGprs', 'connectTypeWan', $event)" /></td>
 
-            <td><input type="checkbox" v-model="row.statusConnect" @change="toggleExclusive(row, 'statusConnect', 'statusLost', $event)" /></td>
-            <td><input type="checkbox" v-model="row.statusLost" @change="toggleExclusive(row, 'statusLost', 'statusConnect', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.statusConnect" @change="toggleExclusive(row, 'statusConnect', 'statusLost', $event)" /></td>
+             <td class="box"><input type="checkbox" v-model="row.statusLost" @change="toggleExclusive(row, 'statusLost', 'statusConnect', $event)" /></td>
           </tr>
           <tr v-if="rows.length === 0">
             <td colspan="11" style="padding:24px;color:#999;">No data.</td>
@@ -88,6 +103,7 @@ export default{
       loading:false,
       saving:false,
       savedAt:null,
+      emailReport:null,
     };
   },
   methods:{
@@ -159,6 +175,7 @@ async save(){
       return;
     }
     this.savedAt = new Date().toLocaleTimeString();
+    this.emailReport = data.email || null;
   }catch (e){
     if(e.message !=='unauthorized') alert('Save failed:' + e);
   }finally{

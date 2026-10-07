@@ -176,8 +176,81 @@ async function getSimBaseRows() {
     atmid: s.atmid,
     adress: s.adress,
     ipBaoDong: s.ipBaoDong || '',
+    email: s.email || '',
   }));
 }
+
+const SIM_FIELD_LABELS ={
+  connStatusDisconnect :'Connection Status:Disconnected',
+  alarmOn:'Alarm:On',
+  connectTypeGprs:'connect Type:GPRS',
+  statusLost :'Status:Connection Lost',
+};
+
+function getSimFailedItem(row){
+  return Object.keys(SIM_FIELD_LABELS)
+  .filter((key) => row[key] ===true)
+  .map((key)=> SIM_FIELD_LABELS[key]);
+}
+
+async function sendSimAlertEmails(date,rows){
+  const transporter = getTransporter();
+  const cfg = loadConfig();
+
+  const rowsWithError = rows.filter((r) => getSimFailedItem(r).length >0);
+
+  if(rowsWithError.length === 0){
+    return{sent:0,skipped:0,results: [],note:'No faults found - nothing to report.'};
+  }
+  if(!transporter){
+    return{
+      sent:0,
+      skipped:rowsWithError.length,
+      results:[],
+      note:'SMTP is not configured in cogfig.json(or"npm install" was not run),so alert emails could NOT be sent even though faults were found.',
+    };
+  }
+  const results = await Promise.all(
+    rowsWithError.map(async(row) =>{
+      const failed = getSimFailedItem(row);
+      if(!row.email){
+        return {atmid:row.atmid,location:row.adress,ok:false,reson:'no email address on file'};
+      }
+      const subject =  `[ALERT] SIM/Alarm fault - ${row.adress} (${row.atmid}) - ${date}`;
+      const html = `
+      <P> Dear <b>${row.adress}</b>team,</P>
+      <p>The SIM/Alarm check on <b>${date}</b> found the following fault(s) at 
+      <b>${row.adress}</b>(ATMID:${row.atmid});</p>
+      <ul>${failed.map((f)=>`<li style="color:#d93025;">❌ ${f}</li>`).join('')}
+      </ul>
+      <p>Alam IP:${row.ipBaoDong || '-'}</p>
+      <p>please check and resolve as soon as possible.</p>
+      <p style="color:#888",
+      font-size:12px,
+      >This email was sent automatically by the SIM/Alarm Check system.</p>
+      `;
+      try{
+        await transporter.sendMail({
+          from:cfg.from || cfg.smtp.user,
+          to:row.email,
+          cc: (cfg.ccTo || []).join(',') || undefined,
+          subject,
+          html,
+        });
+        return { atmid: row.atmid, location: row.adress, ok: true, to: row.email };
+      } catch (e) {
+        return { atmid: row.atmid, location: row.adress, ok: false, reason: String(e.message || e) };
+      }
+    })
+  );
+
+  return {
+    sent: results.filter((r) => r.ok).length,
+    skipped: results.filter((r) => !r.ok).length,
+    results,
+  };
+}
+
 
 function getFailedItems(row) {
   // Fault = the "disconnect" box is checked (true) for that group.
@@ -562,18 +635,10 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     targetRef: body.date,
     ipAddress: getClientIp(req),
   });
-  sendJSON(res, 200, { ok: true });
+  const emailResult = await sendSimAlertEmails(body.date, body.rows);
+   sendJSON(res, 200, { ok: true, savedAt, email: emailResult });
   return;
 }
-
-
-
-
-
-
-
-
-
 
 
 
