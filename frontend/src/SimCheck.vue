@@ -12,6 +12,9 @@
         {{ saving ? 'Saving...' : '💾 Save' }}
       </button>
       <button class="btn-reset" @click="resetAll">Clear</button>
+      <button class="btn-reset" @click="exportPdf" :disabled="exporting">
+        {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
+      </button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
       <span v-if="savedAt" style="font-size:13px;color:#2a8f4a;">Saved at {{ savedAt }}</span>
     </div>
@@ -58,7 +61,7 @@
           <tr v-for="row in rows" :key="row.atmid" :class="{ 'row-error': isFault(row) }">
             <td>{{ row.atmid }}</td>
             <td class="loc">{{ row.adress }}</td>
-            <td>{{ row.ipBaoDong }}</td>
+            <td>{{ row.ip }}</td>
 
              <td class="box"><input type="checkbox" v-model="row.connStatusConnect" @change="toggleExclusive(row, 'connStatusConnect', 'connStatusDisconnect', $event)" /></td>
              <td class="box"><input type="checkbox" v-model="row.connStatusDisconnect" @change="toggleExclusive(row, 'connStatusDisconnect', 'connStatusConnect', $event)" /></td>
@@ -104,6 +107,7 @@ export default{
       saving:false,
       savedAt:null,
       emailReport:null,
+      exporting:false,
     };
   },
   methods:{
@@ -138,7 +142,7 @@ export default{
   },
   resetAll(){
     this.rows = this.rows.map((row) =>{
-      const cleared = { atmid: row.atmid, adress: row.adress, ipBaoDong: row.ipBaoDong };
+      const cleared = { atmid: row.atmid, adress: row.adress, ip: row.ip };
         Object.keys(DEFAULT_CHECKED).forEach((k) => {});
         ['connStatusConnect', 
         'connStatusDisconnect', 
@@ -158,6 +162,29 @@ isFault(row){
     toggleExclusive(row, changedKey, pairKey, event) {
       if (event.target.checked) {
         row[pairKey] = false;
+      }
+    },
+
+    async exportPdf(){
+      this.exporting = true;
+      try{
+        const res = await this.authFetch(`/api/report/simpdf?date=${this.date}`);
+        if(!res.ok){
+          const err = await res.json().catch(() => ({}));
+          alert(err.error || 'Export failed');
+          return;
+        }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sim-check-${this.date}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }catch(e){
+        if(e.message !== 'unauthorized') alert('Export failed: '+ e);
+      }finally{
+        this.exporting = false;
       }
     },
 

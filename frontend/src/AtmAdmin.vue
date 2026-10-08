@@ -68,6 +68,20 @@
         </div>
       </div>
       <div class="form-row">
+        <label>Alarm IP</label>
+        <div class="form-field">
+          <input
+            v-model="form.ip"
+            :class="{ invalid: errors.ip }"
+            @input="validateField('ip')"
+            placeholder="10.0.1.5"
+          />
+          <span v-if="errors.ip" class="field-error">{{ errors.ip }}</span>
+        </div>
+      </div>
+
+
+      <div class="form-row">
         <label>Alert email</label>
         <div class="form-field">
           <input
@@ -96,6 +110,7 @@
                     <th rowspan="2">Adress</th>
                     <th rowspan="2">IP_CAM</th>
                     <th rowspan="2">Video_IP</th>
+                    <th rowspan="2">Alarm IP</th>
                     <th rowspan="2">Alert email</th>
                     <th rowspan="2"></th>
                 </tr>
@@ -106,14 +121,15 @@
                     <td class="loc">{{ site.adress }}</td>
                     <td>{{ site.ipCam }}</td>
                     <td>{{ site.videoIp }}</td>
+                    <td>{{ site.ip }}</td>
                     <td>{{ site.email }}</td>
-                    <td>
+                    <td class="actions-cell">
                       <button class="btn-reset" @click="openEdit(site)">Edit</button>
                       <button class="btn-reset" @click="remove(site)">Delete</button>
                     </td>
                 </tr>
                 <tr v-if="sites.length === 0">
-                    <td colspan="6" style="padding:24px;color:#999;">No ATM site yet.</td>
+                    <td colspan="7" style="padding:24px;color:#999;">No ATM site yet.</td>
                 </tr>
             </tbody>
         </table>
@@ -137,8 +153,8 @@ export default{
             saving:false,
             formOpen:false,
             editingAtmid:null,
-            form: { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' },
-            errors:{ atmid: '', adress: '', ipCam: '', videoIp: '', email: '' },
+            form: { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' },
+            errors:{ atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' },
         };
     },
 
@@ -178,14 +194,14 @@ export default{
       },
       openNew() {
         this.editingAtmid = null;
-        this.form = { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' };
-        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' };
+        this.form = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       openEdit(site) {
         this.editingAtmid = site.atmid;
         this.form = { ...site };
-        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '', email: '' };
+        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       closeForm() {
@@ -218,6 +234,12 @@ export default{
           else this.errors.videoIp = '';
         }
 
+        if (field === 'ip'){
+          if(!v) this.errors.ip='';
+          else if(!numDotPattern.test(v)) this.errors.ip ='Alarm IP must be numbers and dots only,e.g. 10.0.1.5';
+          else this.errors.ip='';
+        }
+
         if (field === 'email') {
           if (!v) this.errors.email = '';
           else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) this.errors.email = 'Not a valid email address';
@@ -225,7 +247,7 @@ export default{
         }
       },
       validateAll() {
-        ['atmid', 'adress', 'ipCam', 'videoIp', 'email'].forEach((f) => this.validateField(f));
+        ['atmid', 'adress', 'ipCam', 'videoIp','ip', 'email'].forEach((f) => this.validateField(f));
         return !this.hasErrors;
       },
 

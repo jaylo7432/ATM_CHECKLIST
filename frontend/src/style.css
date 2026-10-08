@@ -30,8 +30,6 @@ body {
    font-size: 12px;
   }
 
-
-
 .btn-logout:hover { 
    background: #e5e8ee; 
 }
@@ -217,6 +215,8 @@ table {
   font-size: 13px; 
 }
 
+
+
 th, td { 
   border: 1px solid var(--border); 
   padding: 6px 8px; 
@@ -267,8 +267,6 @@ td.box input[type="checkbox"] {
   color: #555; 
 }
 
-
-
 .page-tabs {
   display: inline-flex; gap: 4px; margin-bottom: 20px;
   background: white; border: 1px solid var(--border); border-radius: 10px;
@@ -285,19 +283,6 @@ td.box input[type="checkbox"] {
 .page-tabs button.active:hover { background: #1a56db; }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -312,7 +297,7 @@ td.box input[type="checkbox"] {
 .admin-form {
   background: rgb(248, 247, 247); 
   border: 1px solid var(--border); 
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 65px; 
   margin-bottom: 16px; 
   max-width: 880px;
@@ -388,4 +373,14 @@ td.box input[type="checkbox"] {
 
 .field-error{
   color: rgba(215, 2, 2, 0.852);
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.btn-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+  margin-right: 4px;
 }

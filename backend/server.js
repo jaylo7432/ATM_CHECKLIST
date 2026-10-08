@@ -26,6 +26,7 @@ try {
 }
 const crypto = require('crypto');
 const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite } = require('./db');
+const { error } = require('console');
 
 // Very simple in-memory session store: token -> { username, displayName, expiresAt }
 // Fine for a small internal tool with one backend process. Tokens are lost on restart
@@ -423,6 +424,88 @@ return `<!DOCTYPE html>
 </body></html>`;
 }
 
+function buildSimReportHtml(date, rows, savedAt) {
+  const box = (v) => `<span class="box${v ? ' on' : ''}"></span>`;
+  const isFault = (r) => Object.keys(SIM_FIELD_LABELS).some((k) => r[k] === true);
+
+  const body = rows
+    .map(
+      (r, i) => `
+    <tr class="${isFault(r) ? 'fault' : ''}">
+      <td>${i + 1}</td>
+      <td>${escapeHtml(r.atmid)}</td>
+      <td class="left">${escapeHtml(r.adress)}</td>
+      <td>${escapeHtml(r.ip)}</td>
+      <td>${box(r.connStatusConnect)}</td><td>${box(r.connStatusDisconnect)}</td>
+      <td>${box(r.alarmOff)}</td><td>${box(r.alarmOn)}</td>
+      <td>${box(r.connectTypeWan)}</td><td>${box(r.connectTypeGprs)}</td>
+      <td>${box(r.statusConnect)}</td><td>${box(r.statusLost)}</td>
+    </tr>`
+    )
+    .join('');
+
+  const faultCount = rows.filter(isFault).length;
+
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8" />
+<style>
+  body { font-family: 'Segoe UI', 'Leelawadee UI', Arial, sans-serif; font-size: 9px; color: #222; }
+  h1{font-size:16px;margin: 0 0 4px; }
+  .meta { margin-bottom: 8px; color: #555; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
+  th { background: #e9edf5; }
+  td.left { text-align: left; }
+  tr.fault td { background: #e7e1e1; }
+  .box { display: inline-block; position: relative; width: 11px; height: 11px; border: 1px solid #333; vertical-align: middle; }
+  .box.on::after {
+    content: ''; position: absolute; left: 3px; top: -1px;
+    width: 3px; height: 7px;
+    border: solid #111; border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+</style></head>
+
+<body>
+<h1>SIM / Alarm Check</h1>
+<div class='meta'>
+  Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
+  Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;
+  Sites: ${rows.length} &nbsp;|&nbsp; Faults: <b>${faultCount}</b>
+</div>
+<table>
+    <thead>
+      <tr>
+        <th rowspan="2">ST</th><th rowspan="2">ATMID</th><th rowspan="2">Adress</th>
+        <th rowspan="2">Alarm IP</th>
+        <th colspan="2">Connection Status</th><th colspan="2">Alarm</th>
+        <th colspan="2">Connect Type</th><th colspan="2">Status</th>
+      </tr>
+      <tr>
+        <th>Connected</th><th>Disconnected</th><th>Off</th><th>On</th>
+        <th>WAN</th><th>GPRS</th><th>Connect</th><th>Connection Lost</th>
+      </tr>
+    </thead>
+    <tbody>${body}</tbody>
+  </table>
+</body></html>`;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 async function renderPdf(html) {
   const puppeteer = require('puppeteer');
   const browser = await puppeteer.launch({ headless: true });
@@ -675,6 +758,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
         adress:body.adress,
         ipCam:body.ipCam || '',
         videoIp:body.videoIp|| '',
+        ip:body.ip || '',
         email:body.email|| '',
       });
       writeLocalSites(sites);
@@ -709,6 +793,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
           adress:body.adress??sites[idx].adress,
           ipCam:body.ipCam??sites[idx].ipCam,
           videoIp:body.videoIp??sites[idx].videoIp,
+          ip:body.ip??sites[idx].ip,
           email:body.email??sites[idx].email,
         };
         writeLocalSites(sites);
@@ -769,6 +854,56 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
       return res.end(Buffer.from(pdf));
     }catch(e){
       console.error('❌ PDF error:', e);
+
+
+  if(pathname === '/api/report/pdf' && req.method === 'GET'){
+    const date = parsed.query.date;
+    if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
+
+    const file = dataFilePath(date);
+    if(!fs.existsSync(file)){
+      return sendJSON(res,404,{
+        error:'No saved checklist for this date.please press Save first'
+      });
+    }
+    try{
+      const content = JSON.parse(fs.readFileSync(file,'utf-8'));
+      const pdf = await renderPdf(buildReportHtml(date,content.rows ||[],
+        content.savedAt));
+        res.writeHead(200,{
+          'Content-Type':'application/pdf',
+          'Content-Disposition':`attachment; filename="atm-checklist-${date}.pdf"`,
+        });
+        return res.end(Buffer.from(pdf));
+    }catch(e){
+      console.error('❌ PDF error:', e);
+      return sendJSON(res,500,{error:'failed to ceate PDF',detail:String(e)});
+    }
+  }
+  if(pathname ==='/api/report/simpdf' && req.method === 'GET'){
+    const date = parsed.query.date;
+    if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
+
+    const simFile = path.join(SIM_DATA_DIR, `${date}.json`);
+    if(!fs.existsSync(simFile)){
+      return sendJSON(res,404,{
+        error:'No saved SIM check for this date.Please press Save first'
+      });
+    }
+    try{
+      const content = JSON.parse(fs.readFileSync(simFile,'utf-8'));
+      const pdf = await renderPdf(buildSimReportHtml(date,content.rows || [],content.savedAt));
+      res.writeHead(200,{
+         'Content-Type':'application/pdf',
+        'Content-Disposition': `attachment; filename="sim-check-${date}.pdf"`,
+      });
+      return res.end(Buffer.from(pdf));
+    }catch(e){
+      console.error('❌ Sim PDF error:', e);
+      return sendJSON(res,500,{error:'failed to create PDF',detail:String(e)});   
+    }
+  }
+
       return sendJSON(res,500,{error:'failed to ceate PDF',detail:String(e)});
 
     }
