@@ -11,9 +11,15 @@
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
     </div>
 
-    <div v-if="formOpen" class="admin-form">
+    <div v-if="formOpen" class="modal-overlay" @click.self="closeForm">
+    <div class="admin-form">
+      <div class="modal-header">
+        <h2>{{ editingAtmid ? 'Edit site' : 'Add new site' }}</h2>
+        <button class="btn-close" @click="closeForm">✕</button>
+      </div>
       <div class="form-row">
         <label>ATMID</label>
+
         <div class="form-field">
           <input
             v-model="form.atmid"
@@ -79,6 +85,7 @@
         </button>
         <button class="btn-reset" @click="closeForm">Cancel</button>
       </div>
+    </div>
     </div>
 
     <div class="table-scroll">

@@ -175,7 +175,7 @@ async function getSimBaseRows() {
   return sites.map((s) => ({
     atmid: s.atmid,
     adress: s.adress,
-    ipBaoDong: s.ipBaoDong || '',
+    ip: s.ip || '',
     email: s.email || '',
   }));
 }
@@ -223,7 +223,7 @@ async function sendSimAlertEmails(date,rows){
       <b>${row.adress}</b>(ATMID:${row.atmid});</p>
       <ul>${failed.map((f)=>`<li style="color:#d93025;">❌ ${f}</li>`).join('')}
       </ul>
-      <p>Alam IP:${row.ipBaoDong || '-'}</p>
+      <p>Alam IP:${row.ip || '-'}</p>
       <p>please check and resolve as soon as possible.</p>
       <p style="color:#888",
       font-size:12px,

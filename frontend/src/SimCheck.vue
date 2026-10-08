@@ -44,14 +44,14 @@
             <th colspan="2" class="col-group-title">Status</th>
           </tr>
           <tr>
-            <th>Connected</th>
-            <th>Disconnected</th>
+            <th>Connect</th>
+            <th>Disconnect</th>
             <th>Off</th>
             <th>On</th>
             <th>WAN</th>
             <th>GPRS</th>
             <th>Connect</th>
-            <th>Connection Lost</th>
+            <th>Disconnect</th>
           </tr>
         </thead>
         <tbody>

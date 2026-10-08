@@ -3,7 +3,8 @@
     {
       "atmid": "01000100",
       "adress": "Pv oil Naxay",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "jaylothirasack01@gmail.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -16,7 +17,8 @@
     {
       "atmid": "01000200",
       "adress": "Asain Mall",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "asainmall@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -29,9 +31,10 @@
     {
       "atmid": "01000300",
       "adress": "CHOMPHET",
-      "ipBaoDong": "",
-      "connStatusConnect": true,
-      "connStatusDisconnect": false,
+      "ip": "",
+      "email": "chomphet@example.com",
+      "connStatusConnect": false,
+      "connStatusDisconnect": true,
       "alarmOff": true,
       "alarmOn": false,
       "connectTypeWan": true,
@@ -42,11 +45,12 @@
     {
       "atmid": "01000400",
       "adress": "NONGTHA",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "nongtha@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
-      "alarmOff": true,
-      "alarmOn": false,
+      "alarmOff": false,
+      "alarmOn": true,
       "connectTypeWan": true,
       "connectTypeGprs": false,
       "statusConnect": true,
@@ -55,7 +59,8 @@
     {
       "atmid": "01000500",
       "adress": "TSB",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "tsb@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -68,20 +73,22 @@
     {
       "atmid": "01000600",
       "adress": "WAT AONGTEU",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "wataongteu@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
       "alarmOn": false,
       "connectTypeWan": true,
       "connectTypeGprs": false,
-      "statusConnect": true,
-      "statusLost": false
+      "statusConnect": false,
+      "statusLost": true
     },
     {
       "atmid": "01000700",
       "adress": "LTC SAILOM",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "ltcsailom@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -94,7 +101,8 @@
     {
       "atmid": "01000800",
       "adress": "SIKHAI UNIT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "sikhaiunit@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -107,7 +115,8 @@
     {
       "atmid": "01000900",
       "adress": "MITTAPHAP HPT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "mittaphaphpt@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -120,7 +129,8 @@
     {
       "atmid": "01001000",
       "adress": "WATTAI UNIT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "wattaiunit@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -133,7 +143,8 @@
     {
       "atmid": "01001100",
       "adress": "HO INSIDE",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "hoinside@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -146,7 +157,8 @@
     {
       "atmid": "01001200",
       "adress": "HO OUTSIDE",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "hooutside@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -159,7 +171,8 @@
     {
       "atmid": "01001300",
       "adress": "FRIENDSHIP BG",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "friendshipbg@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -172,7 +185,8 @@
     {
       "atmid": "01001400",
       "adress": "XANG3HUA",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "xang3hua@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -185,7 +199,8 @@
     {
       "atmid": "01001500",
       "adress": "SOUTH BUT STT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "southbutstt@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -198,7 +213,8 @@
     {
       "atmid": "01001600",
       "adress": "MN MARKET",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "mnmarket@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -211,7 +227,8 @@
     {
       "atmid": "01001700",
       "adress": "WATCHANH",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "watchanh@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -224,7 +241,8 @@
     {
       "atmid": "01001800",
       "adress": "LTC NAMPHOU",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "ltcnamphou@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -237,7 +255,8 @@
     {
       "atmid": "01001900",
       "adress": "LTC HO",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "ltcho@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -250,7 +269,8 @@
     {
       "atmid": "01002000",
       "adress": "PVOIL PPSAK",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "pvoilppsak@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -263,7 +283,8 @@
     {
       "atmid": "01002100",
       "adress": "DD UNIT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "ddunit@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -276,7 +297,8 @@
     {
       "atmid": "01002200",
       "adress": "DONNOUN UNIT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "Donnoun@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -289,7 +311,8 @@
     {
       "atmid": "01002300",
       "adress": "HONGKAYASIN",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "hongkayasin@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -302,7 +325,8 @@
     {
       "atmid": "01002400",
       "adress": "HARDXAIKHAO",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "hardxaikhao@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -315,7 +339,8 @@
     {
       "atmid": "01002500",
       "adress": "ITEC UNIT",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "itecunit@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -328,7 +353,8 @@
     {
       "atmid": "01002600",
       "adress": "PHONPAPAO",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "phonpapao@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -341,7 +367,8 @@
     {
       "atmid": "03000100",
       "adress": "Luckmuong ATM3 (030-CHAMPASAK)",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "luckmuongatm3030champasak@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -354,7 +381,8 @@
     {
       "atmid": "03000200",
       "adress": "Phonsaath (030-CHAMPAAAASAK)",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "phonsaath030champasak@example.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -367,7 +395,8 @@
     {
       "atmid": "10090190",
       "adress": "nongtaeng",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "jaylophoutthasack@gmail.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -380,7 +409,22 @@
     {
       "atmid": "12343212",
       "adress": "bangkok",
-      "ipBaoDong": "",
+      "ip": "",
+      "email": "bangkok@eemalple@gmail.com",
+      "connStatusConnect": true,
+      "connStatusDisconnect": false,
+      "alarmOff": true,
+      "alarmOn": false,
+      "connectTypeWan": true,
+      "connectTypeGprs": false,
+      "statusConnect": true,
+      "statusLost": false
+    },
+    {
+      "atmid": "1231223",
+      "adress": "xiengman",
+      "ip": "",
+      "email": "gg@gmail.com",
       "connStatusConnect": true,
       "connStatusDisconnect": false,
       "alarmOff": true,
@@ -391,5 +435,5 @@
       "statusLost": false
     }
   ],
-  "savedAt": "10/7/2026, 2:13:30 PM"
+  "savedAt": "10/7/2026, 4:20:18 PM"
 }
