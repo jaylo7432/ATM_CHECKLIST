@@ -26,7 +26,6 @@ try {
 }
 const crypto = require('crypto');
 const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite } = require('./db');
-const { error } = require('console');
 
 // Very simple in-memory session store: token -> { username, displayName, expiresAt }
 // Fine for a small internal tool with one backend process. Tokens are lost on restart
@@ -94,6 +93,13 @@ const FIELD_LABELS = {
   camWorkDisconnect: 'Cam_work: Disconnect',
   drvConectDisconnect: 'DRV_conect: Disconnect',
   camSaveDisconnect: 'Cam_save: Disconnect',
+};
+
+const SIM_FIELD_LABELS = {
+  connStatusDisconnect: 'Connection Status: Disconnect',
+  alarmOn: 'Alarm: On',
+  connectTypeGprs: 'Connect Type: GPRS',
+  statusLost: 'Status: Disconnect',
 };
 
 const CHECKBOX_FIELDS = [
@@ -181,84 +187,18 @@ async function getSimBaseRows() {
   }));
 }
 
-const SIM_FIELD_LABELS ={
-  connStatusDisconnect :'Connection Status:Disconnected',
-  alarmOn:'Alarm:On',
-  connectTypeGprs:'connect Type:GPRS',
-  statusLost :'Status:Connection Lost',
-};
-
-function getSimFailedItem(row){
-  return Object.keys(SIM_FIELD_LABELS)
-  .filter((key) => row[key] ===true)
-  .map((key)=> SIM_FIELD_LABELS[key]);
-}
-
-async function sendSimAlertEmails(date,rows){
-  const transporter = getTransporter();
-  const cfg = loadConfig();
-
-  const rowsWithError = rows.filter((r) => getSimFailedItem(r).length >0);
-
-  if(rowsWithError.length === 0){
-    return{sent:0,skipped:0,results: [],note:'No faults found - nothing to report.'};
-  }
-  if(!transporter){
-    return{
-      sent:0,
-      skipped:rowsWithError.length,
-      results:[],
-      note:'SMTP is not configured in cogfig.json(or"npm install" was not run),so alert emails could NOT be sent even though faults were found.',
-    };
-  }
-  const results = await Promise.all(
-    rowsWithError.map(async(row) =>{
-      const failed = getSimFailedItem(row);
-      if(!row.email){
-        return {atmid:row.atmid,location:row.adress,ok:false,reson:'no email address on file'};
-      }
-      const subject =  `[ALERT] SIM/Alarm fault - ${row.adress} (${row.atmid}) - ${date}`;
-      const html = `
-      <P> Dear <b>${row.adress}</b>team,</P>
-      <p>The SIM/Alarm check on <b>${date}</b> found the following fault(s) at 
-      <b>${row.adress}</b>(ATMID:${row.atmid});</p>
-      <ul>${failed.map((f)=>`<li style="color:#d93025;">❌ ${f}</li>`).join('')}
-      </ul>
-      <p>Alam IP:${row.ip || '-'}</p>
-      <p>please check and resolve as soon as possible.</p>
-      <p style="color:#888",
-      font-size:12px,
-      >This email was sent automatically by the SIM/Alarm Check system.</p>
-      `;
-      try{
-        await transporter.sendMail({
-          from:cfg.from || cfg.smtp.user,
-          to:row.email,
-          cc: (cfg.ccTo || []).join(',') || undefined,
-          subject,
-          html,
-        });
-        return { atmid: row.atmid, location: row.adress, ok: true, to: row.email };
-      } catch (e) {
-        return { atmid: row.atmid, location: row.adress, ok: false, reason: String(e.message || e) };
-      }
-    })
-  );
-
-  return {
-    sent: results.filter((r) => r.ok).length,
-    skipped: results.filter((r) => !r.ok).length,
-    results,
-  };
-}
-
-
 function getFailedItems(row) {
   // Fault = the "disconnect" box is checked (true) for that group.
   return Object.keys(FIELD_LABELS)
     .filter((key) => row[key] === true)
     .map((key) => FIELD_LABELS[key]);
 
+}
+
+function getSimFailedItems(row) {
+  return Object.keys(SIM_FIELD_LABELS)
+    .filter((key) => row[key] === true)
+    .map((key) => SIM_FIELD_LABELS[key]);
 }
 async function checkLoginWithFallback(username,password){
   try{
@@ -320,6 +260,62 @@ async function sendAlertEmails(date, rows) {
       <p>IP_CAM: ${row.ipCam || '-'}<br/>Video_IP: ${row.videoIp || '-'}</p>
       <p>Please check and resolve as soon as possible.</p>
       <p style="color:#888;font-size:12px;">This email was sent automatically by the Start-of-Day Inspection system.</p>
+    `;
+    try {
+      await transporter.sendMail({
+        from: cfg.from || cfg.smtp.user,
+        to: row.email,
+        cc: (cfg.ccTo || []).join(',') || undefined,
+        subject,
+        html,
+      });
+      results.push({ atmid: row.atmid, location: row.adress, ok: true, to: row.email });
+    } catch (e) {
+      results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: String(e.message || e) });
+    }
+  }
+
+  return {
+    sent: results.filter((r) => r.ok).length,
+    skipped: results.filter((r) => !r.ok).length,
+    results,
+  };
+}
+
+async function sendSimAlertEmails(date, rows) {
+  const transporter = getTransporter();
+  const cfg = loadConfig();
+  const results = [];
+
+  const rowsWithErrors = rows.filter((r) => getSimFailedItems(r).length > 0);
+
+  if (rowsWithErrors.length === 0) {
+    return { sent: 0, skipped: 0, results, note: 'No faults found — nothing to report.' };
+  }
+
+  if (!transporter) {
+    return {
+      sent: 0,
+      skipped: rowsWithErrors.length,
+      results,
+      note: 'SMTP is not configured in config.json (or "npm install" was not run), so alert emails could NOT be sent even though faults were found.',
+    };
+  }
+
+  for (const row of rowsWithErrors) {
+    const failed = getSimFailedItems(row);
+    if (!row.email) {
+      results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: 'no email address on file' });
+      continue;
+    }
+    const subject = `[ALERT] SIM/Alarm fault - ${row.adress} (${row.atmid}) - ${date}`;
+    const html = `
+      <p>Dear <b>${row.adress}</b> team,</p>
+      <p>The SIM/Alarm check on <b>${date}</b> found the following fault(s) at <b>${row.adress}</b> (ATMID: ${row.atmid}):</p>
+      <ul>${failed.map((f) => `<li style="color:#d93025;">❌ ${f}</li>`).join('')}</ul>
+      <p>Alarm IP: ${row.ip || '-'}</p>
+      <p>Please check and resolve as soon as possible.</p>
+      <p style="color:#888;font-size:12px;">This email was sent automatically by the SIM/Alarm Check system.</p>
     `;
     try {
       await transporter.sendMail({
@@ -424,9 +420,10 @@ return `<!DOCTYPE html>
 </body></html>`;
 }
 
-function buildSimReportHtml(date, rows, savedAt) {
-  const box = (v) => `<span class="box${v ? ' on' : ''}"></span>`;
-  const isFault = (r) => Object.keys(SIM_FIELD_LABELS).some((k) => r[k] === true);
+function buildSimReportHtml(date,rows,savedAt){
+  const box = (v) =>  `<span class="box${v ? ' on' : ''}"></span>`;
+  const SIM_FAULT_FIELDS = ['connStatusDisconnect','alarmOn','connectTypeGprs','statusLost'];
+  const isFault = (r) => SIM_FAULT_FIELDS.some((k) => r[k] === true);
 
   const body = rows
     .map(
@@ -446,7 +443,7 @@ function buildSimReportHtml(date, rows, savedAt) {
 
   const faultCount = rows.filter(isFault).length;
 
-  return `<!DOCTYPE html>
+return `<!DOCTYPE html>
 <html><head><meta charset="utf-8" />
 <style>
   body { font-family: 'Segoe UI', 'Leelawadee UI', Arial, sans-serif; font-size: 9px; color: #222; }
@@ -456,7 +453,7 @@ function buildSimReportHtml(date, rows, savedAt) {
   th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
   th { background: #e9edf5; }
   td.left { text-align: left; }
-  tr.fault td { background: #e7e1e1; }
+    tr.fault td { background: #e7e1e1; }
   .box { display: inline-block; position: relative; width: 11px; height: 11px; border: 1px solid #333; vertical-align: middle; }
   .box.on::after {
     content: ''; position: absolute; left: 3px; top: -1px;
@@ -470,10 +467,11 @@ function buildSimReportHtml(date, rows, savedAt) {
 
 <body>
 <h1>SIM / Alarm Check</h1>
-<div class='meta'>
+<div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;
   Sites: ${rows.length} &nbsp;|&nbsp; Faults: <b>${faultCount}</b>
+
 </div>
 <table>
     <thead>
@@ -484,27 +482,14 @@ function buildSimReportHtml(date, rows, savedAt) {
         <th colspan="2">Connect Type</th><th colspan="2">Status</th>
       </tr>
       <tr>
-        <th>Connected</th><th>Disconnected</th><th>Off</th><th>On</th>
-        <th>WAN</th><th>GPRS</th><th>Connect</th><th>Connection Lost</th>
+        <th>connect</th><th>disconnect</th><th>off</th><th>on</th>
+        <th>WAN</th><th>GPRS</th><th>connect</th><th>disconnect</th>
       </tr>
     </thead>
     <tbody>${body}</tbody>
   </table>
 </body></html>`;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 async function renderPdf(html) {
   const puppeteer = require('puppeteer');
@@ -709,6 +694,9 @@ const server = http.createServer(async (req, res) => {
 
 if (pathname === '/api/simcheck' && req.method === 'POST') {
   const body = await readBody(req);
+  if (!isValidDate(body.date) || !Array.isArray(body.rows)) {
+    return sendJSON(res, 400, { ok: false, error: 'invalid payload' });
+  }
   const savedAt = new Date().toLocaleString();
   const simFile = path.join(SIM_DATA_DIR, `${body.date}.json`);
   fs.writeFileSync(simFile, JSON.stringify({ rows: body.rows, savedAt }, null, 2), 'utf-8');
@@ -718,10 +706,21 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     targetRef: body.date,
     ipAddress: getClientIp(req),
   });
+
   const emailResult = await sendSimAlertEmails(body.date, body.rows);
-   sendJSON(res, 200, { ok: true, savedAt, email: emailResult });
+
+  sendJSON(res, 200, { ok: true, savedAt, email: emailResult });
   return;
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -758,7 +757,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
         adress:body.adress,
         ipCam:body.ipCam || '',
         videoIp:body.videoIp|| '',
-        ip:body.ip || '',
+        ip:body.ip|| '',
         email:body.email|| '',
       });
       writeLocalSites(sites);
@@ -854,32 +853,11 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
       return res.end(Buffer.from(pdf));
     }catch(e){
       console.error('❌ PDF error:', e);
-
-
-  if(pathname === '/api/report/pdf' && req.method === 'GET'){
-    const date = parsed.query.date;
-    if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
-
-    const file = dataFilePath(date);
-    if(!fs.existsSync(file)){
-      return sendJSON(res,404,{
-        error:'No saved checklist for this date.please press Save first'
-      });
-    }
-    try{
-      const content = JSON.parse(fs.readFileSync(file,'utf-8'));
-      const pdf = await renderPdf(buildReportHtml(date,content.rows ||[],
-        content.savedAt));
-        res.writeHead(200,{
-          'Content-Type':'application/pdf',
-          'Content-Disposition':`attachment; filename="atm-checklist-${date}.pdf"`,
-        });
-        return res.end(Buffer.from(pdf));
-    }catch(e){
-      console.error('❌ PDF error:', e);
       return sendJSON(res,500,{error:'failed to ceate PDF',detail:String(e)});
+
     }
   }
+
   if(pathname ==='/api/report/simpdf' && req.method === 'GET'){
     const date = parsed.query.date;
     if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
@@ -900,12 +878,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
       return res.end(Buffer.from(pdf));
     }catch(e){
       console.error('❌ Sim PDF error:', e);
-      return sendJSON(res,500,{error:'failed to create PDF',detail:String(e)});   
-    }
-  }
-
-      return sendJSON(res,500,{error:'failed to ceate PDF',detail:String(e)});
-
+      return sendJSON(res,500,{error:'failed to create PDF',detail:String(e)});
     }
   }
 
