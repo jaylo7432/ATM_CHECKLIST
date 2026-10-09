@@ -18,7 +18,7 @@
         <button class="btn-close" @click="closeForm">✕</button>
       </div>
       <div class="form-row">
-        <label>ATMID</label>
+        <label>ATMID :</label>
 
         <div class="form-field">
           <input
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>Adress</label>
+        <label>Address :</label>
         <div class="form-field">
           <input
             v-model="form.adress"
@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>IP_CAM</label>
+        <label>IP_CAM :</label>
         <div class="form-field">
           <input
             v-model="form.ipCam"
@@ -56,7 +56,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>Video_IP</label>
+        <label>Video_IP :</label>
         <div class="form-field">
           <input
             v-model="form.videoIp"
@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>Alarm IP</label>
+        <label>Alarm IP :</label>
         <div class="form-field">
           <input
             v-model="form.ip"
@@ -82,7 +82,7 @@
 
 
       <div class="form-row">
-        <label>Alert email</label>
+        <label>Alert email :</label>
         <div class="form-field">
           <input
             v-model="form.email"

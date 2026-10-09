@@ -5,8 +5,8 @@
       "adress": "Pv oil Naxay",
       "ip": "10.00.20.1",
       "email": "jaylothirasack01@gmail.com",
-      "connStatusConnect": false,
-      "connStatusDisconnect": true,
+      "connStatusConnect": true,
+      "connStatusDisconnect": false,
       "alarmOff": true,
       "alarmOn": false,
       "connectTypeWan": false,
@@ -447,7 +447,35 @@
       "connectTypeGprs": false,
       "statusConnect": true,
       "statusLost": false
+    },
+    {
+      "atmid": "0560281",
+      "adress": "thardluang",
+      "ip": "05.44.32",
+      "email": "thardluang@gmail.com",
+      "connStatusConnect": true,
+      "connStatusDisconnect": false,
+      "alarmOff": true,
+      "alarmOn": false,
+      "connectTypeWan": true,
+      "connectTypeGprs": false,
+      "statusConnect": true,
+      "statusLost": false
+    },
+    {
+      "atmid": "0232301",
+      "adress": "hm ku ",
+      "ip": "0.2.3.57",
+      "email": "hmku@gmail.com",
+      "connStatusConnect": true,
+      "connStatusDisconnect": false,
+      "alarmOff": true,
+      "alarmOn": false,
+      "connectTypeWan": true,
+      "connectTypeGprs": false,
+      "statusConnect": true,
+      "statusLost": false
     }
   ],
-  "savedAt": "10/9/2026, 9:07:54 AM"
+  "savedAt": "10/9/2026, 9:44:17 AM"
 }

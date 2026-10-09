@@ -9,14 +9,14 @@
     <div class="toolbar">
       <label>Date: <input type="date" v-model="date" @change="load" /></label>
       <button class="btn-save" :disabled="saving" @click="save">
-        {{ saving ? 'Saving...' : '💾 Save' }}
+        {{ saving ? 'Saving...' : '💾 Save & send alerts' }}
       </button>
-      <button class="btn-reset" @click="resetAll">Clear</button>
+      <button class="btn-reset" @click="resetAll">✖ Clear all boxes</button>
       <button class="btn-reset" @click="exportPdf" :disabled="exporting">
         {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
       </button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
-      <span v-if="savedAt" style="font-size:13px;color:#2a8f4a;">Saved at {{ savedAt }}</span>
+      <span v-if="savedAt" style="font-size:13px;color:#2a8f4a;background-color: #e6f4ea;padding:4px 10px ;border-radius: 9px;font-weight: 600;">Saved at {{ savedAt }}</span>
     </div>
 
 <div class="email-report" v-if="emailReport">

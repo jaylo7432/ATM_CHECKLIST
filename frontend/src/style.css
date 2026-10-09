@@ -31,7 +31,7 @@ body {
   }
 
 .btn-logout:hover { 
-   background: #e5e8ee; 
+   background: #19c6cffc; 
 }
 
 .login-wrap {
@@ -268,9 +268,14 @@ td.box input[type="checkbox"] {
 }
 
 .page-tabs {
-  display: inline-flex; gap: 4px; margin-bottom: 20px;
-  background: white; border: 1px solid var(--border); border-radius: 10px;
-  padding: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  display:inline-flex; 
+  gap: 4px; 
+  margin-bottom: 20px;
+  background: white; 
+  border: 1px solid var(--border); 
+  border-radius: 10px;
+  padding: 4px; 
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
 }
 .page-tabs button {
   padding: 8px 18px; border: none; border-radius: 7px;
@@ -341,14 +346,14 @@ td.box input[type="checkbox"] {
   margin-bottom: 16px;
 }
 .admin-form .form-row label {
-  font-size: 14px;
+  font-size: 15px;
   color: #333;
   font-weight: 600;
 }
 .admin-form .form-row input {
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 12px;
+  padding: 12px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
@@ -372,6 +377,7 @@ td.box input[type="checkbox"] {
 }
 
 .field-error{
+  font-size: 12px;
   color: rgba(215, 2, 2, 0.852);
 }
 
@@ -384,3 +390,5 @@ td.box input[type="checkbox"] {
   font-size: 12px;
   margin-right: 4px;
 }
+
+
