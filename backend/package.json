@@ -1,0 +1,14 @@
+{
+  "name": "atm-checklist-backend",
+  "version": "1.0.0",
+  "description": "Node.js API backend for the ATM camera checklist — saves daily results and sends email alerts",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.14",
+    "oracledb": "^6.6.0",
+    "puppeteer": "^25.12.0"
+  }
+}
