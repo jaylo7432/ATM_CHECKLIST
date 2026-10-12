@@ -595,7 +595,8 @@ const server = http.createServer(async (req, res) => {
   // Everything under /api/checklist and /api/dates requires a valid login,
   // UNLESS "requireLogin": false in config.json (useful while you're still
   // setting up MySQL / the users table and just want the checklist working).
-  if (pathname.startsWith('/api/checklist') || pathname.startsWith('/api/dates') || pathname.startsWith('/api/atms')|| pathname.startsWith('/api/simcheck')) {
+  const PUBLIC_API_PATHS = ['/api/auth-config','/api/login','/api/me'];
+  if (pathname.startsWith('/api/') && !PUBLIC_API_PATHS.includes(pathname)) {
     const cfg = loadConfig();
     const requireLogin = !!(cfg && cfg.requireLogin);
     if (requireLogin) {
@@ -675,6 +676,7 @@ const server = http.createServer(async (req, res) => {
 
  if (pathname === '/api/simcheck' && req.method === 'GET') {
   const date = parsed.query.date;
+  if(!isValidDate(date)) return sendJSON(res,400,{error:"invalid date"});
   const baseRows = await getSimBaseRows();
   const simFile = path.join(SIM_DATA_DIR, `${date}.json`);
   let saved = null;
