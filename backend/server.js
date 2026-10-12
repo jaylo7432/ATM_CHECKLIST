@@ -313,7 +313,7 @@ async function sendSimAlertEmails(date, rows) {
       <p>Dear <b>${row.adress}</b> team,</p>
       <p>The SIM/Alarm check on <b>${date}</b> found the following fault(s) at <b>${row.adress}</b> (ATMID: ${row.atmid}):</p>
       <ul>${failed.map((f) => `<li style="color:#d93025;">❌ ${f}</li>`).join('')}</ul>
-      <p>Alarm IP: ${row.ip || '-'}</p>
+      <p>IP: ${row.ip || '-'}</p>
       <p>Please check and resolve as soon as possible.</p>
       <p style="color:#888;font-size:12px;">This email was sent automatically by the SIM/Alarm Check system.</p>
     `;
@@ -477,7 +477,7 @@ return `<!DOCTYPE html>
     <thead>
       <tr>
         <th rowspan="2">ST</th><th rowspan="2">ATMID</th><th rowspan="2">Adress</th>
-        <th rowspan="2">Alarm IP</th>
+        <th rowspan="2">IP</th>
         <th colspan="2">Connection Status</th><th colspan="2">Alarm</th>
         <th colspan="2">Connect Type</th><th colspan="2">Status</th>
       </tr>

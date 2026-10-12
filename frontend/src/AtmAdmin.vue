@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="form-row">
-        <label>Alarm IP :</label>
+        <label>IP :</label>
         <div class="form-field">
           <input
             v-model="form.ip"
@@ -110,7 +110,7 @@
                     <th rowspan="2">Adress</th>
                     <th rowspan="2">IP_CAM</th>
                     <th rowspan="2">Video_IP</th>
-                    <th rowspan="2">Alarm IP</th>
+                    <th rowspan="2">IP</th>
                     <th rowspan="2">Alert email</th>
                     <th rowspan="2"></th>
                 </tr>
@@ -236,7 +236,7 @@ export default{
 
         if (field === 'ip'){
           if(!v) this.errors.ip='';
-          else if(!numDotPattern.test(v)) this.errors.ip ='Alarm IP must be numbers and dots only,e.g. 10.0.1.5';
+          else if(!numDotPattern.test(v)) this.errors.ip =' IP must be numbers and dots only,e.g. 10.0.1.5';
           else this.errors.ip='';
         }
 

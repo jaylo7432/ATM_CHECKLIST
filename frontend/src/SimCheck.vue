@@ -16,7 +16,9 @@
         {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
       </button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
-      <span v-if="savedAt" style="font-size:13px;color:#2a8f4a;background-color: #e6f4ea;padding:4px 10px ;border-radius: 9px;font-weight: 600;">Saved at {{ savedAt }}</span>
+      <span class="status-pill" :class="saved ? 'saved' : 'unsaved'">
+      {{ saved ? ('Saved at ' + savedAt) : 'Not saved' }}
+</span>
     </div>
 
 <div class="email-report" v-if="emailReport">
@@ -40,7 +42,7 @@
           <tr>
             <th rowspan="2">ATMID</th>
             <th rowspan="2">Adress</th>
-            <th rowspan="2">Alarm IP</th>
+            <th rowspan="2">IP</th>
             <th colspan="2" class="col-group-title">Connection Status</th>
             <th colspan="2" class="col-group-title">Alarm</th>
             <th colspan="2" class="col-group-title">Connect Type</th>
@@ -129,11 +131,13 @@ export default{
     async load(){
       this.loading = true;
       this.savedAt =null;
+      this.saved = false;
       try{
         const res = await this.authFetch(`/api/simcheck?date=${this.date}`);
         const data = await res.json();
         this.rows = data.rows || [];
         this.savedAt = data.savedAt || null;
+        this.saved = !! data.savedAt;
       }catch(e){
       if(e.message!=='unauthorized') alert('Failed to load: ' + e);
     } finally{
@@ -155,6 +159,7 @@ export default{
     return cleared;
   });
   this.savedAt=null;
+  this.saved = false;
 },
 isFault(row){
   return !!(row.connStatusDisconnect || row.alarmOn || row.connectTypeGprs || row.statusLost);
@@ -163,6 +168,7 @@ isFault(row){
       if (event.target.checked) {
         row[pairKey] = false;
       }
+      this.saved = false;
     },
 
     async exportPdf(){
@@ -202,6 +208,7 @@ async save(){
       return;
     }
     this.savedAt = new Date().toLocaleTimeString();
+    this.saved = true;
     this.emailReport = data.email || null;
   }catch (e){
     if(e.message !=='unauthorized') alert('Save failed:' + e);

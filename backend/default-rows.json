@@ -14,7 +14,8 @@
     "adress": "Asain Mall",
     "ipCam": "10.0.1.11",
     "videoIp": "10.0.1.12",
-    "email": "asainmall@example.com"
+    "email": "asainmall@example.com",
+    "ip": "11.111.111"
   },
   {
     "stt": "3",
@@ -263,11 +264,11 @@
     "email": "thardluang@gmail.com"
   },
   {
-    "atmid": "0232301",
-    "adress": "hm kuuuuu",
-    "ipCam": "",
-    "videoIp": "",
-    "ip": "0.2.3.57",
-    "email": "hmku@gmail.com"
+    "atmid": "10010234",
+    "adress": "tharddluang",
+    "ipCam": "10.020.022",
+    "videoIp": "90.09.02",
+    "ip": "12.23.22",
+    "email": "thardluang@gmail.com"
   }
 ]
