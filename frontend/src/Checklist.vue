@@ -65,25 +65,31 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, idx) in rows" :key="idx" :class="{ 'row-error': hasError(row) }">
-            <td>{{ idx + 1 }}</td>
-            <td class="readonly-cell">{{ row.atmid }}</td>
-            <td class="loc readonly-cell">{{ row.adress }}</td>
-            <td class="readonly-cell">{{ row.ipCam }}</td>
-            <td class="readonly-cell">{{ row.videoIp }}</td>
-            <td class="box"><input type="checkbox" v-model="row.camConectConnect" @change="toggleExclusive(row, 'camConectConnect', 'camConectDisconnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camConectDisconnect" @change="toggleExclusive(row, 'camConectDisconnect', 'camConectConnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camWorkConnect" @change="toggleExclusive(row, 'camWorkConnect', 'camWorkDisconnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camWorkDisconnect" @change="toggleExclusive(row, 'camWorkDisconnect', 'camWorkConnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.drvConectConnect" @change="toggleExclusive(row, 'drvConectConnect', 'drvConectDisconnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.drvConectDisconnect" @change="toggleExclusive(row, 'drvConectDisconnect', 'drvConectConnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camSaveConnect" @change="toggleExclusive(row, 'camSaveConnect', 'camSaveDisconnect', $event)" /></td>
-            <td class="box"><input type="checkbox" v-model="row.camSaveDisconnect" @change="toggleExclusive(row, 'camSaveDisconnect', 'camSaveConnect', $event)" /></td>
-          </tr>
+          <template v-for="item in groupedRows">
+            <tr v-if="item.type === 'header'" :key="'h-' + item.province" class="province-header">
+              <td colspan="13">📍 {{ item.province }}</td>
+            </tr>
+            <tr v-else :key="'r-' + item.row.atmid" :class="{ 'row-error': hasError(item.row) }">
+              <td>{{ item.stt }}</td>
+              <td class="readonly-cell">{{ item.row.atmid }}</td>
+              <td class="loc readonly-cell">{{ item.row.adress }}</td>
+              <td class="readonly-cell">{{ item.row.ipCam }}</td>
+              <td class="readonly-cell">{{ item.row.videoIp }}</td>
+              <td class="box"><input type="checkbox" v-model="item.row.camConectConnect" @change="toggleExclusive(item.row, 'camConectConnect', 'camConectDisconnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.camConectDisconnect" @change="toggleExclusive(item.row, 'camConectDisconnect', 'camConectConnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.camWorkConnect" @change="toggleExclusive(item.row, 'camWorkConnect', 'camWorkDisconnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.camWorkDisconnect" @change="toggleExclusive(item.row, 'camWorkDisconnect', 'camWorkConnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.drvConectConnect" @change="toggleExclusive(item.row, 'drvConectConnect', 'drvConectDisconnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.drvConectDisconnect" @change="toggleExclusive(item.row, 'drvConectDisconnect', 'drvConectConnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.camSaveConnect" @change="toggleExclusive(item.row, 'camSaveConnect', 'camSaveDisconnect', $event)" /></td>
+              <td class="box"><input type="checkbox" v-model="item.row.camSaveDisconnect" @change="toggleExclusive(item.row, 'camSaveDisconnect', 'camSaveConnect', $event)" /></td>
+            </tr>
+          </template>
           <tr v-if="rows.length === 0">
             <td colspan="13" style="padding:24px;color:#999;">No data for this date.</td>
           </tr>
         </tbody>
+
       </table>
     </div>
 
@@ -133,11 +139,34 @@ export default {
       emailReport: null,
     };
   },
+
+
   computed: {
     savedAtDisplay() {
       if (!this.savedAt) return '';
       const d = new Date(this.savedAt);
       return d.toLocaleString('en-US');
+    },
+    groupedRows() {
+      const sorted = [...this.rows].sort((a, b) => {
+        const pa = String(a.province || '').localeCompare(String(b.province || ''));
+        if (pa !== 0) return pa;
+        return String(a.atmid || '').localeCompare(String(b.atmid || ''));
+      });
+      const items = [];
+      let currentProvince = null;
+      let stt = 0;
+      for (const row of sorted) {
+        const province = row.province || 'Unassigned';
+        if (province !== currentProvince) {
+          currentProvince = province;
+          stt = 0;
+          items.push({ type: 'header', province });
+        }
+        stt += 1;
+        items.push({ type: 'row', row, stt });
+      }
+      return items;
     },
   },
   methods: {

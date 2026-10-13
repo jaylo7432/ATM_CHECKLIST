@@ -182,6 +182,7 @@ async function getSimBaseRows() {
   return sites.map((s) => ({
     atmid: s.atmid,
     adress: s.adress,
+    province: s.province || '',
     ip: s.ip || '',
     email: s.email || '',
   }));
@@ -757,6 +758,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
       sites.push({
         atmid:body.atmid,
         adress:body.adress,
+        province:body.province || '',
         ipCam:body.ipCam || '',
         videoIp:body.videoIp|| '',
         ip:body.ip|| '',
@@ -792,6 +794,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
         sites[idx] = {
           ...sites[idx],
           adress:body.adress??sites[idx].adress,
+          province:body.province??sites[idx].province,
           ipCam:body.ipCam??sites[idx].ipCam,
           videoIp:body.videoIp??sites[idx].videoIp,
           ip:body.ip??sites[idx].ip,

@@ -44,6 +44,19 @@
         </div>
       </div>
       <div class="form-row">
+        <label>Province</label>
+        <div class="form-field">
+          <input
+          v-model="form.province"
+          :class="{invalid: errors.province}"
+          @input="validateField('province')"
+          placeholder="e.g. 030-CHAMPASAK"
+          />
+          <span v-if = "errors.province" class="field-error">{{ errors.province }}</span>
+        </div>
+      </div>
+
+      <div class="form-row">
         <label>IP_CAM :</label>
         <div class="form-field">
           <input
@@ -103,33 +116,43 @@
     </div>
 
     <div class="table-scroll">
-        <table>
+              <table>
             <thead>
                 <tr>
-                    <th rowspan="2">ATM</th>
-                    <th rowspan="2">Adress</th>
-                    <th rowspan="2">IP_CAM</th>
-                    <th rowspan="2">Video_IP</th>
-                    <th rowspan="2">IP</th>
-                    <th rowspan="2">Alert email</th>
-                    <th rowspan="2"></th>
+                    <th>STT</th>
+                    <th>ATM</th>
+                    <th>Adress</th>
+                    <th>Province</th>
+                    <th>IP_CAM</th>
+                    <th>Video_IP</th>
+                    <th>IP</th>
+                    <th>Alert email</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="site in sites" :key="site.atmid">
-                    <td>{{ site.atmid }}</td>
-                    <td class="loc">{{ site.adress }}</td>
-                    <td>{{ site.ipCam }}</td>
-                    <td>{{ site.videoIp }}</td>
-                    <td>{{ site.ip }}</td>
-                    <td>{{ site.email }}</td>
+              <template v-for="item in groupedSites">
+                  <tr v-if="item.type === 'header'" :key="'h-' + item.province" class="province-header">
+                  <td colspan="9">📍 {{ item.province }}</td>
+                  </tr>
+                  <tr v-else :key="'r-' + item.site.atmid">
+ 
+                    <td>{{ item.stt }}</td>
+                    <td>{{ item.site.atmid }}</td>
+                    <td class="loc">{{ item.site.adress }}</td>
+                    <td>{{ item.site.province }}</td>
+                    <td>{{ item.site.ipCam }}</td>
+                    <td>{{ item.site.videoIp }}</td>
+                    <td>{{ item.site.ip }}</td>
+                    <td>{{ item.site.email }}</td>
                     <td class="actions-cell">
-                      <button class="btn-reset" @click="openEdit(site)">Edit</button>
-                      <button class="btn-reset" @click="remove(site)">Delete</button>
+                      <button class="btn-reset" @click="openEdit(item.site)">Edit</button>
+                      <button class="btn-reset" @click="remove(item.site)">Delete</button>
                     </td>
-                </tr>
+                  </tr>
+                </template>
                 <tr v-if="sites.length === 0">
-                    <td colspan="7" style="padding:24px;color:#999;">No ATM site yet.</td>
+                    <td colspan="9" style="padding:24px;color:#999;">No ATM site yet.</td>
                 </tr>
             </tbody>
         </table>
@@ -153,8 +176,8 @@ export default{
             saving:false,
             formOpen:false,
             editingAtmid:null,
-            form: { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' },
-            errors:{ atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' },
+            form: { atmid: '', adress: '',province:'', ipCam: '', videoIp: '',ip:'', email: '' },
+            errors:{ atmid: '', adress: '',province:'', ipCam: '', videoIp: '',ip:'', email: '' },
         };
     },
 
@@ -162,6 +185,27 @@ export default{
       hasErrors() {
         return Object.values(this.errors).some((e) => !!e);
       },
+      groupedSites(){
+        const sorted = [...this.sites].sort((a,b) =>{
+          const pa = String(a.province || '').localeCompare(String(b.province || ''));
+          if (pa !== 0) return pa;
+          return String(a.atmid || '').localeCompare(String(b.atmid || ''));
+        })
+        const items =[];
+        let currentProvince = null;
+        let stt = 0;
+        for(const site of sorted){
+          const province = site.province || 'Unassigned';
+          if (province !== currentProvince){
+            currentProvince = province;
+            stt = 0;
+            items.push({type:"header",province});
+          }
+          stt += 1;
+          items.push({type:'site',site,stt});
+        }
+          return items;
+      }
     },
 
     methods: {
@@ -194,14 +238,14 @@ export default{
       },
       openNew() {
         this.editingAtmid = null;
-        this.form = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
-        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.form = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.errors = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       openEdit(site) {
         this.editingAtmid = site.atmid;
-        this.form = { ...site };
-        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.form = { ip:'', province: '',...site };
+        this.errors = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       closeForm() {
@@ -247,7 +291,7 @@ export default{
         }
       },
       validateAll() {
-        ['atmid', 'adress', 'ipCam', 'videoIp','ip', 'email'].forEach((f) => this.validateField(f));
+        ['atmid', 'adress','province', 'ipCam', 'videoIp','ip', 'email'].forEach((f) => this.validateField(f));
         return !this.hasErrors;
       },
 

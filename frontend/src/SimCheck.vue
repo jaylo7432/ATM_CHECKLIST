@@ -40,6 +40,7 @@
       <table>
         <thead>
           <tr>
+            <th rowspan="2">ST<br />T</th>
             <th rowspan="2">ATMID</th>
             <th rowspan="2">Adress</th>
             <th rowspan="2">IP</th>
@@ -60,27 +61,34 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row.atmid" :class="{ 'row-error': isFault(row) }">
-            <td>{{ row.atmid }}</td>
-            <td class="loc">{{ row.adress }}</td>
-            <td>{{ row.ip }}</td>
+          <template v-for="item in groupedRows">
+            <tr v-if="item.type === 'header'" :key="'h-' + item.province" class="province-header">
+              <td colspan="12">📍 {{ item.province }}</td>
+            </tr>
+               <tr v-else :key="'r-' + item.row.atmid" :class="{ 'row-error': isFault(item.row) }">
+              <td>{{ item.stt }}</td>
+              <td>{{ item.row.atmid }}</td>
+              <td class="loc">{{ item.row.adress }}</td>
+              <td>{{ item.row.ip }}</td>
 
-             <td class="box"><input type="checkbox" v-model="row.connStatusConnect" @change="toggleExclusive(row, 'connStatusConnect', 'connStatusDisconnect', $event)" /></td>
-             <td class="box"><input type="checkbox" v-model="row.connStatusDisconnect" @change="toggleExclusive(row, 'connStatusDisconnect', 'connStatusConnect', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.connStatusConnect" @change="toggleExclusive(item.row, 'connStatusConnect', 'connStatusDisconnect', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.connStatusDisconnect" @change="toggleExclusive(item.row, 'connStatusDisconnect', 'connStatusConnect', $event)" /></td>
 
-             <td class="box"><input type="checkbox" v-model="row.alarmOff" @change="toggleExclusive(row, 'alarmOff', 'alarmOn', $event)" /></td>
-             <td class="box"><input type="checkbox" v-model="row.alarmOn" @change="toggleExclusive(row, 'alarmOn', 'alarmOff', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.alarmOff" @change="toggleExclusive(item.row, 'alarmOff', 'alarmOn', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.alarmOn" @change="toggleExclusive(item.row, 'alarmOn', 'alarmOff', $event)" /></td>
 
-             <td class="box"><input type="checkbox" v-model="row.connectTypeWan" @change="toggleExclusive(row, 'connectTypeWan', 'connectTypeGprs', $event)" /></td>
-             <td class="box"><input type="checkbox" v-model="row.connectTypeGprs" @change="toggleExclusive(row, 'connectTypeGprs', 'connectTypeWan', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.connectTypeWan" @change="toggleExclusive(item.row, 'connectTypeWan', 'connectTypeGprs', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.connectTypeGprs" @change="toggleExclusive(item.row, 'connectTypeGprs', 'connectTypeWan', $event)" /></td>
 
-             <td class="box"><input type="checkbox" v-model="row.statusConnect" @change="toggleExclusive(row, 'statusConnect', 'statusLost', $event)" /></td>
-             <td class="box"><input type="checkbox" v-model="row.statusLost" @change="toggleExclusive(row, 'statusLost', 'statusConnect', $event)" /></td>
-          </tr>
+               <td class="box"><input type="checkbox" v-model="item.row.statusConnect" @change="toggleExclusive(item.row, 'statusConnect', 'statusLost', $event)" /></td>
+               <td class="box"><input type="checkbox" v-model="item.row.statusLost" @change="toggleExclusive(item.row, 'statusLost', 'statusConnect', $event)" /></td>
+            </tr>
+          </template>
           <tr v-if="rows.length === 0">
-            <td colspan="11" style="padding:24px;color:#999;">No data.</td>
+          <td colspan="12" style="padding:24px;color:#999;">No data.</td>
           </tr>
         </tbody>
+
       </table>
     </div>
   </div>
@@ -111,6 +119,29 @@ export default{
       emailReport:null,
       exporting:false,
     };
+  },
+  computed:{
+    groupedRows(){
+      const sorted = [...this.rows].sort((a, b) => {
+        const pa = String(a.province || '').localeCompare(String(b.province || ''));
+        if (pa !== 0) return pa;
+        return String(a.atmid || '').localeCompare(String(b.atmid || ''));
+      });
+      const items = [];
+      let currentProvince = null;
+      let stt = 0;
+      for (const row of sorted) {
+        const province = row.province || 'Unassigned';
+        if (province !== currentProvince) {
+          currentProvince = province;
+          stt = 0;
+          items.push({ type: 'header', province });
+        }
+        stt += 1;
+        items.push({ type: 'row', row, stt });
+      }
+      return items;
+    },
   },
   methods:{
     async authFetch(url,options = {}){
