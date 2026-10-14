@@ -67,6 +67,7 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const TEMPLATE_FILE = path.join(__dirname, 'default-rows.json');
 const LOCAL_USERS_FILE = path.join(__dirname, 'local-users.json');
+const PROVINCE_CODES_FILE = path.join(__dirname, 'province-codes.json');
 const SIM_DATA_DIR = path.join(__dirname, 'data-sim');
 if (!fs.existsSync(SIM_DATA_DIR)) fs.mkdirSync(SIM_DATA_DIR, { recursive: true });
 
@@ -164,17 +165,31 @@ function dataFilePath(date) {
 // the "atm_sites" MySQL table each time, so adding/removing branches there
 // shows up immediately. Falls back to default-rows.json if the database
 // isn't configured or the query fails, so the app still works without MySQL.
+function loadProvinceCodes() {
+  if (fs.existsSync(PROVINCE_CODES_FILE)) {
+    return JSON.parse(fs.readFileSync(PROVINCE_CODES_FILE, 'utf-8'));
+  }
+  return {};
+}
+
+function getProvinceForAtmid(atmid) {
+  const codes = loadProvinceCodes();
+  const prefix = String(atmid || '').slice(0, 3);
+  return codes[prefix] ? `${prefix}-${codes[prefix]}` : 'Unassigned';
+}
+
 async function getBaseRows() {
+  let sites = null;
   try {
-    const sites = await getSites();
-    if (sites && sites.length > 0) return sites;
+    const dbSites = await getSites();
+    if (dbSites && dbSites.length > 0) sites = dbSites;
   } catch (e) {
     console.warn('⚠️  Could not load ATM sites from the database, falling back to default-rows.json:', e.message);
   }
-  if (fs.existsSync(TEMPLATE_FILE)) {
-    return JSON.parse(fs.readFileSync(TEMPLATE_FILE, 'utf-8'));
+  if (!sites) {
+    sites = fs.existsSync(TEMPLATE_FILE) ? JSON.parse(fs.readFileSync(TEMPLATE_FILE, 'utf-8')) : [];
   }
-  return [];
+  return sites.map((s) => ({ ...s, province: getProvinceForAtmid(s.atmid) }));
 }
 
 async function getSimBaseRows() {
@@ -741,6 +756,10 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     const rows = await getBaseRows();
     return sendJSON(res,200,{rows});
   }
+  if(pathname ==='/api/province-codes' && req.method==='GET'){
+    return sendJSON(res,200,{codes: loadProvinceCodes()});
+  }
+
   if(pathname ==='/api/atms'&& req.method === 'POST'){
     try{
       const body = await readBody(req);
@@ -758,7 +777,6 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
       sites.push({
         atmid:body.atmid,
         adress:body.adress,
-        province:body.province || '',
         ipCam:body.ipCam || '',
         videoIp:body.videoIp|| '',
         ip:body.ip|| '',
@@ -794,7 +812,6 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
         sites[idx] = {
           ...sites[idx],
           adress:body.adress??sites[idx].adress,
-          province:body.province??sites[idx].province,
           ipCam:body.ipCam??sites[idx].ipCam,
           videoIp:body.videoIp??sites[idx].videoIp,
           ip:body.ip??sites[idx].ip,

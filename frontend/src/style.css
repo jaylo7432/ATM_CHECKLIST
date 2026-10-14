@@ -385,6 +385,25 @@ td.box input[type="checkbox"] {
   color: rgba(252, 0, 0, 0.852);
 }
 
+.province-preview{
+  padding: 10px 12px;
+  background: #f2f4f7;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.field-hint{
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #888;
+}
+
+
+
 .actions-cell {
   white-space: nowrap;
 }

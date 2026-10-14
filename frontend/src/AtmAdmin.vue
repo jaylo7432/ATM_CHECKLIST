@@ -46,13 +46,8 @@
       <div class="form-row">
         <label>Province</label>
         <div class="form-field">
-          <input
-          v-model="form.province"
-          :class="{invalid: errors.province}"
-          @input="validateField('province')"
-          placeholder="e.g. 030-CHAMPASAK"
-          />
-          <span v-if = "errors.province" class="field-error">{{ errors.province }}</span>
+          <div class="province-preview">📍 {{ previewProvince }}</div>
+          <span class="field-hint">Auto-detected from the first 3 digits of the ATMID — not editable here.</span>
         </div>
       </div>
 
@@ -176,14 +171,20 @@ export default{
             saving:false,
             formOpen:false,
             editingAtmid:null,
-            form: { atmid: '', adress: '',province:'', ipCam: '', videoIp: '',ip:'', email: '' },
-            errors:{ atmid: '', adress: '',province:'', ipCam: '', videoIp: '',ip:'', email: '' },
+            provinceCodes:{},
+            form: { atmid: '', adress: '', ipCam: '', videoIp: '', ip: '', email: '' },
+            errors:{ atmid: '', adress: '', ipCam: '', videoIp: '', ip: '', email: '' },
         };
     },
 
     computed: {
       hasErrors() {
         return Object.values(this.errors).some((e) => !!e);
+      },
+      previewProvince() {
+        const prefix = String(this.form.atmid || '').slice(0, 3);
+        const name = this.provinceCodes[prefix];
+        return name ? `${prefix}-${name}` : 'Unassigned';
       },
       groupedSites(){
         const sorted = [...this.sites].sort((a,b) =>{
@@ -236,16 +237,27 @@ export default{
           this.loading = false;
         }
       },
+
+      async loadProvinceCodes(){
+        try{
+          const res = await this.authFetch('/api/province-codes');
+          const data = await res.json();
+          this.provinceCodes = data.codes || {};
+        }catch(e){
+          if(e.message !== 'unauthorized') console.warn('Failed to load province codes:',e);
+        }
+      },
+
       openNew() {
         this.editingAtmid = null;
-        this.form = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
-        this.errors = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.form = { atmid: '', adress: '',  ipCam: '', videoIp: '',ip:'', email: '' };
+        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       openEdit(site) {
         this.editingAtmid = site.atmid;
-        this.form = { ip:'', province: '',...site };
-        this.errors = { atmid: '', adress: '', province: '', ipCam: '', videoIp: '',ip:'', email: '' };
+        this.form = { ip:'',...site };
+        this.errors = { atmid: '', adress: '', ipCam: '', videoIp: '',ip:'', email: '' };
         this.formOpen = true;
       },
       closeForm() {
@@ -291,7 +303,7 @@ export default{
         }
       },
       validateAll() {
-        ['atmid', 'adress','province', 'ipCam', 'videoIp','ip', 'email'].forEach((f) => this.validateField(f));
+        ['atmid', 'adress', 'ipCam', 'videoIp','ip', 'email'].forEach((f) => this.validateField(f));
         return !this.hasErrors;
       },
 
@@ -344,6 +356,7 @@ export default{
     },
     mounted(){
       this.load();
+      this.loadProvinceCodes();
     },
 }
 </script>
