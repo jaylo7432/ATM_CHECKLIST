@@ -367,11 +367,26 @@ function buildReportHtml(date,rows,savedAt){
   const box = (v) =>  `<span class="box${v ? ' on' : ''}"></span>`;
   const isFault = (r) => Object.keys(FIELD_LABELS).some((k) =>r[k] === true);
 
-  const body = rows
-    .map(
-      (r, i) => `
+    const sortedRows = [...rows].sort((a, b) => {
+    const pa = String(a.province || '').localeCompare(String(b.province || ''));
+    if (pa !== 0) return pa;
+    return String(a.atmid || '').localeCompare(String(b.atmid || ''));
+  });
+
+  const bodyParts = [];
+  let currentProvince = null;
+  let stt = 0;
+  for (const r of sortedRows) {
+    const province = r.province || 'Unassigned';
+    if (province !== currentProvince) {
+      currentProvince = province;
+      stt = 0;
+      bodyParts.push(`<tr class="province-header"><td colspan="13">📍 ${escapeHtml(province)}</td></tr>`);
+    }
+    stt += 1;
+    bodyParts.push(`
     <tr class="${isFault(r) ? 'fault' : ''}">
-      <td>${i + 1}</td>
+      <td>${stt}</td>
       <td>${escapeHtml(r.atmid)}</td>
       <td class="left">${escapeHtml(r.adress)}</td>
       <td>${escapeHtml(r.ipCam)}</td>
@@ -380,16 +395,15 @@ function buildReportHtml(date,rows,savedAt){
       <td>${box(r.camWorkConnect)}</td><td>${box(r.camWorkDisconnect)}</td>
       <td>${box(r.drvConectConnect)}</td><td>${box(r.drvConectDisconnect)}</td>
       <td>${box(r.camSaveConnect)}</td><td>${box(r.camSaveDisconnect)}</td>
-    </tr>`
-    )
-    .join('');
-
-
+    </tr>`);
+  }
+  const body = bodyParts.join('');
+  
 faultCount = rows.filter(isFault).length
 
 return `<!DOCTYPE html>
 <html><head><meta charset="utf-8" />
-<style>
+<styl>
   body { font-family: 'Segoe UI', 'Leelawadee UI', Arial, sans-serif; font-size: 9px; color: #222; }
   h1{font-size:16px;margin: 0 0 4px; }
   .meta { margin-bottom: 8px; color: #555; }
@@ -407,8 +421,8 @@ return `<!DOCTYPE html>
   }
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
+  tr.province-header td { background: #ffe9a8; font-weight: bold; text-align: left; }
 </style></head>
-</style>
 
 <body>
 <h1>Daily ATM Check</h1>
@@ -434,14 +448,14 @@ return `<!DOCTYPE html>
     <tbody>${body}</tbody>
   </table>
 </body></html>`;
-}
+
 
 function buildSimReportHtml(date,rows,savedAt){
   const box = (v) =>  `<span class="box${v ? ' on' : ''}"></span>`;
   const SIM_FAULT_FIELDS = ['connStatusDisconnect','alarmOn','connectTypeGprs','statusLost'];
   const isFault = (r) => SIM_FAULT_FIELDS.some((k) => r[k] === true);
 
-  const body = rows
+    const body = rows
     .map(
       (r, i) => `
     <tr class="${isFault(r) ? 'fault' : ''}">
@@ -479,6 +493,7 @@ return `<!DOCTYPE html>
   }
   thead { display: table-header-group; }
   tr { page-break-inside: avoid; }
+  tr.province-header td { background: #ffe9a8; font-weight: bold; text-align: left; }
 </style></head>
 
 <body>
