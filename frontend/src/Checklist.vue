@@ -67,7 +67,7 @@
         <tbody>
           <template v-for="item in groupedRows">
             <tr v-if="item.type === 'header'" :key="'h-' + item.province" class="province-header">
-              <td colspan="13">📍 {{ item.province }}</td>
+              <td colspan="13"> {{ item.province }}</td>
             </tr>
             <tr v-else :key="'r-' + item.row.atmid" :class="{ 'row-error': hasError(item.row) }">
               <td>{{ item.stt }}</td>

@@ -46,7 +46,7 @@
       <div class="form-row">
         <label>Province</label>
         <div class="form-field">
-          <div class="province-preview">📍 {{ previewProvince }}</div>
+          <div class="province-preview"> {{ previewProvince }}</div>
           <span class="field-hint">Auto-detected from the first 3 digits of the ATMID — not editable here.</span>
         </div>
       </div>
@@ -128,7 +128,7 @@
             <tbody>
               <template v-for="item in groupedSites">
                   <tr v-if="item.type === 'header'" :key="'h-' + item.province" class="province-header">
-                  <td colspan="9">📍 {{ item.province }}</td>
+                  <td colspan="9"> {{ item.province }}</td>
                   </tr>
                   <tr v-else :key="'r-' + item.site.atmid">
  

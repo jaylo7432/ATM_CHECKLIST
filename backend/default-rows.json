@@ -557,13 +557,5 @@
     "videoIp": "10.17.148.4",
     "ip": "10.17.148.5",
     "email": "example@gmail.com"
-  },
-  {
-    "atmid": "030302044",
-    "adress": "ewrwrwrw",
-    "ipCam": "123123",
-    "videoIp": "123123",
-    "ip": "123123",
-    "email": ""
   }
 ]

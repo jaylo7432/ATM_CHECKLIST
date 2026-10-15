@@ -224,10 +224,12 @@ th, td {
 }
 
 thead th { 
-  background: var(--header-bg); 
-  position: sticky; 
-  top: 0; 
-  font-weight: 100;
+    background: #f2f4f7;
+    position: sticky;
+    top: 0;
+    font-weight: 100;
+    margin: auto;
+    padding: 10px 5px;  
 
 }
 
@@ -236,7 +238,8 @@ thead tr:last-child th { top: 33px; width:90px; }
 
 th.sub { font-weight: 500; 
   font-size: 12px; 
-  color: #555; 
+  color: #030303; 
+
 }
 
 td.loc { 
@@ -245,8 +248,7 @@ td.loc {
 }
 
 .col-group-title { 
-  background: #e9edf5 !important; 
-  text-align: left !important;
+  background: #f2f4f7 !important; 
   font-weight: 700;
   position:sticky;
   left: 0;
@@ -415,10 +417,11 @@ td.box input[type="checkbox"] {
 }
 
 .province-header td {
-  background: #d6d4ccb9 !important;
+  background: #f2f4f7 !important;
   text-align: left !important;
   font-weight: 700;
   position: sticky;
+  border: 2px solid #e4d8d8;
   left: 0;
 }
 
