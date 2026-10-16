@@ -30,6 +30,7 @@ CREATE TABLE atm_sites (
   adress      VARCHAR2(200) NOT NULL,       -- Adress
   ip_cam      VARCHAR2(50)  DEFAULT NULL,   -- IP_CAM
   video_ip    VARCHAR2(50)  DEFAULT NULL,   -- Video_IP
+  alarm_ip    VARCHAR2(50)  DEFAULT NULL,   -- Alarm IP (SIM / Alarm Check page)
   email       VARCHAR2(150) DEFAULT NULL,   -- not on screen, used for alert emails
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -381,7 +381,7 @@ function buildReportHtml(date,rows,savedAt){
     if(province!==currentProvince){
       currentProvince = province;
       stt = 0;
-      bodyParts.push(`<tr class="province-header"><td colspan="13">📍 ${escapeHtml(province)}</td></tr>`);
+      bodyParts.push(`<tr class="province-header"><td colspan="13"> ${escapeHtml(province)}</td></tr>`);
     }
     stt += 1;
     bodyParts.push(`
@@ -470,7 +470,7 @@ function buildSimReportHtml(date,rows,savedAt){
     if (province !== currentProvince) {
       currentProvince = province;
       stt = 0;
-      bodyParts.push(`<tr class="province-header"><td colspan="12">📍 ${escapeHtml(province)}</td></tr>`);
+      bodyParts.push(`<tr class="province-header"><td colspan="12"> ${escapeHtml(province)}</td></tr>`);
     }
     stt += 1;
     bodyParts.push(`
