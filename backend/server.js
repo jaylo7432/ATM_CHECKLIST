@@ -26,6 +26,8 @@ try {
 }
 const crypto = require('crypto');
 const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite } = require('./db');
+const { saveRecords, loadRecords } = require('./records');
+const { json } = require('stream/consumers');
 
 // Very simple in-memory session store: token -> { username, displayName, expiresAt }
 // Fine for a small internal tool with one backend process. Tokens are lost on restart
@@ -160,6 +162,38 @@ function isValidDate(d) {
 function dataFilePath(date) {
   return path.join(DATA_DIR, `${date}.json`);
 }
+// Loads one day's saved results: Oracle first, then the old JSON file
+// (so results saved before Oracle was connected can still be opened).
+
+async function loadSavedResults(type,date){
+  try{
+    const fromDb = await loadRecords(type,date);
+    if(fromDb && fromDb.rows.length > 0) return fromDb;
+  }catch (e){
+    console.warn('⚠️ Could not read saved results from Oracle,using the local file:',e.message);
+  }
+
+  const file = type === 'atm'? dataFilePath(date) : path.join(SIM_DATA_DIR, `${date}.json`);
+  if(!fs.existsSync(file)) return null;
+  const content = JSON.parse(fs.readFileSync(file,'utf-8'));
+  return {rows:content.rows ||[],savedAt:content.savedAt || null};
+
+}
+
+// Saves one day's results: a JSON file copy first (safety backup), then Oracle.
+
+async function saveResults(type,date,rows,savedAt,username){
+  const file = type === 'atm' ? dataFilePath(date) : path.join(SIM_DATA_DIR,`${date}.json`);
+  fs.writeFileSync(file,JSON.stringify({date,rows,savedAt},null,2),'utf-8');
+  try{
+    await saveRecords(type,date,rows,savedAt,username);
+  }catch(e) {
+    console.warn('⚠️  Could not save results to Oracle (the local file copy was saved):', 
+      e.message);
+  }
+}
+
+
 
 // The ATM/branch site list (ATMID, location, IPs, email) — pulled fresh from
 // the "atm_sites" MySQL table each time, so adding/removing branches there
@@ -660,16 +694,14 @@ const server = http.createServer(async (req, res) => {
     if (!isValidDate(date)) return sendJSON(res, 400, { error: 'invalid date' });
 
     const baseRows = await getBaseRows();
-
-    const file = dataFilePath(date);
     let statusByAtmid = {};
     let saved = false;
     let savedAt = null;
-    if (fs.existsSync(file)) {
-      const content = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const savedData = await loadSavedResults('atm', date);
+    if (savedData) {
       saved = true;
-      savedAt = content.savedAt;
-      (content.rows || []).forEach((r) => {
+      savedAt = savedData.savedAt;
+      savedData.rows.forEach((r) => {
         statusByAtmid[r.atmid] = r;
       });
     }
@@ -702,10 +734,11 @@ const server = http.createServer(async (req, res) => {
       if (!isValidDate(date) || !Array.isArray(rows)) {
         return sendJSON(res, 400, { error: 'invalid payload' });
       }
-      const payload = { date, rows, savedAt: new Date().toISOString() };
-      fs.writeFileSync(dataFilePath(date), JSON.stringify(payload, null, 2), 'utf-8');
 
+      const payload = { date, rows, savedAt: new Date().toISOString() };
       const session = getSession(getBearerToken(req));
+      await saveResults('atm', date, rows, payload.savedAt, session ? session.username : 'guest');
+      
       insertAuditLog({
         userId: session ? session.username : 'guest',
         actionType: 'SUBMIT_INSPECTION',
@@ -725,9 +758,7 @@ const server = http.createServer(async (req, res) => {
   const date = parsed.query.date;
   if(!isValidDate(date)) return sendJSON(res,400,{error:"invalid date"});
   const baseRows = await getSimBaseRows();
-  const simFile = path.join(SIM_DATA_DIR, `${date}.json`);
-  let saved = null;
-  if (fs.existsSync(simFile)) saved = JSON.parse(fs.readFileSync(simFile, 'utf-8'));
+  const saved = await loadSavedResults('sim', date);
   const DEFAULT_CHECKED = { connStatusConnect: true, alarmOff: true, connectTypeWan: true, statusConnect: true };
   const rows = baseRows.map((base) => {
     const prev = saved && saved.rows ? saved.rows.find((r) => r.atmid === base.atmid) : null;
@@ -747,8 +778,7 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     return sendJSON(res, 400, { ok: false, error: 'invalid payload' });
   }
   const savedAt = new Date().toLocaleString();
-  const simFile = path.join(SIM_DATA_DIR, `${body.date}.json`);
-  fs.writeFileSync(simFile, JSON.stringify({ rows: body.rows, savedAt }, null, 2), 'utf-8');
+  await saveResults('sim', body.date, body.rows, savedAt, getSession(getBearerToken(req))?.username);
   insertAuditLog({
     userId: getSession(getBearerToken(req))?.username || 'unknown',
     actionType: 'SUBMIT_SIM_INSPECTION',
@@ -889,14 +919,13 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     const date = parsed.query.date;
     if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
 
-    const file = dataFilePath(date);
-    if(!fs.existsSync(file)){
+    const content = await loadSavedResults('atm', date);
+    if(!content){
       return sendJSON(res,404,{
         error:'No saved checklist for this date.please press Save first'
       });
     }
     try{
-    const content = JSON.parse(fs.readFileSync(file,'utf-8'));
     const pdf = await renderPdf(buildReportHtml(date,content.rows || [],
       content.savedAt));
       res.writeHead(200,{
@@ -915,14 +944,13 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     const date = parsed.query.date;
     if(!isValidDate(date)) return sendJSON(res,400,{error:'invalid date'});
 
-    const simFile = path.join(SIM_DATA_DIR, `${date}.json`);
-    if(!fs.existsSync(simFile)){
+    const content = await loadSavedResults('sim', date);
+    if(!content){
       return sendJSON(res,404,{
         error:'No saved SIM check for this date.Please press Save first'
       });
     }
     try{
-      const content = JSON.parse(fs.readFileSync(simFile,'utf-8'));
       const pdf = await renderPdf(buildSimReportHtml(date,content.rows || [],content.savedAt));
       res.writeHead(200,{
          'Content-Type':'application/pdf',
