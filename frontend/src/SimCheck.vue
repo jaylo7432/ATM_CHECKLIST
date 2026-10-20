@@ -5,6 +5,7 @@
       <button v-if="user.username !== 'guest'" class="btn-logout" @click="$emit('logout')">Log out</button>
     </div>
     <h1>📶 SIM / Alarm Check</h1>
+    <PageTabs page="simcheck" @navigate="$emit('navigate', $event)" />
 
     <div class="toolbar">
       <label>Date: <input type="date" v-model="date" @change="load" /></label>
@@ -15,6 +16,7 @@
       <button class="btn-reset" @click="exportPdf" :disabled="exporting">
         {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
       </button>
+      <label style="cursor:pointer;"><input type="checkbox" v-model="onlyProblems" /> Show only problems</label>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
       <span class="status-pill" :class="saved ? 'saved' : 'unsaved'">
       {{ saved ? ('Saved at ' + savedAt) : 'Not saved' }}
@@ -84,8 +86,8 @@
                <td class="box"><input type="checkbox" v-model="item.row.statusLost" @change="toggleExclusive(item.row, 'statusLost', 'statusConnect', $event)" /></td>
             </tr>
           </template>
-          <tr v-if="rows.length === 0">
-          <td colspan="12" style="padding:24px;color:#999;">No data.</td>
+          <tr v-if="groupedRows.length === 0">
+            <td colspan="12" style="padding:24px;color:#999;">{{ onlyProblems ? 'No problems found.' : 'No data.' }}</td>
           </tr>
         </tbody>
 
@@ -95,6 +97,8 @@
 </template>
 
 <script>
+import PageTabs from './PageTabs.vue';
+
 const DEFAULT_CHECKED = {
   connStatusConnect:true,
   alarmOff:true,
@@ -108,7 +112,8 @@ export default{
     token:{type:String,required:true},
     user:{type:Object,required:true},
   },
-  emits:['logout'],
+  components: { PageTabs },
+  emits:['logout','navigate'],
   data(){
     return{
       date:new Date().toISOString().slice(0,10),
@@ -118,11 +123,12 @@ export default{
       savedAt:null,
       emailReport:null,
       exporting:false,
+      onlyProblems:false,
     };
   },
   computed:{
     groupedRows(){
-      const sorted = [...this.rows].sort((a, b) => {
+        const sorted = this.rows.filter((r) => !this.onlyProblems || this.isFault(r)).sort((a, b) => {
         const pa = String(a.province || '').localeCompare(String(b.province || ''));
         if (pa !== 0) return pa;
         return String(a.atmid || '').localeCompare(String(b.atmid || ''));

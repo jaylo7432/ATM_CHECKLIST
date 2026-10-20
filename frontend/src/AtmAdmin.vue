@@ -5,6 +5,7 @@
       <button v-if="user.username !== 'guest'" class="btn-logout" @click="$emit('logout')">Log out</button>
     </div>
     <h1> Manage ATM Sites</h1>
+    <PageTabs page="admin" @navigate="$emit('navigate', $event)" />
 
     <div class="toolbar">
       <button class="btn-save" @click="openNew">➕ Add new site</button>
@@ -157,13 +158,16 @@
 
 
 <script>
+import PageTabs from './PageTabs.vue';
+
 export default{
     name:"AtmAdmin",
     props:{
         token:{type:String,required:true},
         user:{type:Object,required:true},
     },
-    emits:['logout'],
+    components: { PageTabs },
+    emits:['logout','navigate'],
     data(){
         return{
             sites:[],

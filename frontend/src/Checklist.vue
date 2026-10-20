@@ -5,6 +5,7 @@
       <button v-if="user.username !== 'guest'" class="btn-logout" @click="$emit('logout')">Log out</button>
     </div>
     <h1>📋 Daily ATM Check</h1>
+    <PageTabs page="checklist" @navigate="$emit('navigate', $event)" />
 
     <div class="toolbar">
       <div>
@@ -100,6 +101,8 @@
 </template>
 
 <script>
+import PageTabs from './PageTabs.vue';
+
 function todayStr() {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
@@ -126,7 +129,8 @@ export default {
     user: { type: Object, required: true },
   },
 
-  emits: ['logout'],
+  components: { PageTabs },
+  emits: ['logout', 'navigate'],
   data() {
     return {
       date: todayStr(),
@@ -282,5 +286,3 @@ export default {
   },
 };
 </script>
-
-

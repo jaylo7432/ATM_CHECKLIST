@@ -274,15 +274,12 @@ td.box input[type="checkbox"] {
 }
 
 .page-tabs {
-  display:inline-flex; 
-  gap: 4px; 
-  margin-bottom: 20px;
-  background: white; 
-  border: 1px solid var(--border); 
-  border-radius: 10px;
-  padding: 4px; 
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  display: flex; width: fit-content; gap: 4px; margin: 8px 0 16px;
+  background: white; border: 1px solid var(--border); border-radius: 10px;
+  padding: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  position: sticky; top: 8px; z-index: 100;
 }
+
 .page-tabs button {
   padding: 8px 18px; border: none; border-radius: 7px;
   background: transparent; color: #555;
@@ -435,3 +432,17 @@ td.actions-cell {
 td.actions-cell button {
   padding: 6px 12px;
 }
+
+.doc-header { text-align: center; margin: 12px auto; max-width: 1450px; }
+.doc-header .nation { font-weight: bold; font-size: 25px; }
+.doc-header .motto { font-weight: bold; font-size: 23px; }
+.doc-header .row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; text-align: left; }
+.doc-header .left { display: flex; align-items: center; gap: 10px; }
+.doc-header .logo { height: 230px; width: 300px; }
+.doc-header .bank1 { font-weight: bold; font-size: 25px;text-align: left; }
+.doc-header .bank2 { font-weight: bold; font-size: 25px;text-align: right;}
+.doc-header .right { text-align: right; font-size: 13px; }
+.doc-header .title { font-weight: bold; font-size: 18px; margin-top: 8px; }
+.doc-header .sub { font-style: italic; }
+.doc-line { border: 0; border-top: 3px solid #000000; margin: 12px 0; }
+.doc-header .dept{ font-weight: bold; text-align: left;font-size: 25px;}

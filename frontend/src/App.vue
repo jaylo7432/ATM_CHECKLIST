@@ -3,15 +3,31 @@
     <div v-if="!checkedAuthConfig" class="auth-check-loading">Loading...</div>
     <Login v-else-if="!token" @login-success="onLoginSuccess" />
     <template v-else>
-      <div class="page-tabs">
-        <button :class="{ active: page === 'checklist' }" @click="page = 'checklist'">📋 ATM Check</button>
-        <button :class="{ active: page === 'simcheck' }" @click="page = 'simcheck'"> 📶 SIM Check</button>
-        <button :class="{ active: page === 'admin' }" @click="page = 'admin'"> Manage ATMs</button>
-        
+      <div class="doc-header">
+        <div class="nation">CỘNG HÒA DÂN CHỦ NHÂN DÂN LÀO</div>
+        <div class="motto">Hòa Bình - Độc lập - Dân chủ - Thống nhất - Thịnh vượng
+          <hr class="doc-line" />
+        </div>
+        <div class="row">
+          <div class="left">
+            <img class="logo" src="/logo.jpg" alt="" />
+            <div class="names">
+              <div class="bank1">ທະນາຄານຮ່ວມທຸລະກິດລາວຫວຽດ</div>
+              <div class="bank2">NGÂN HÀNG LIÊN DOANH LÀO VIỆT</div>
+            </div>
+          </div>
+          <div class="right">
+            <div>Số: ............/BB-PHÒNG THẺ.HSC</div>
+            <div><i>Vientiane, {{ today }}</i></div>
+          </div>
+        </div>
+        <div class="dept">PHÒNG THẺ - HSC</div>
+        <div class="title">BIÊN BẢN KIỂM TRA ĐẦU NGÀY</div>
+        <div class="sub">(Hệ thống camera giám sát và báo động ATM)</div>
       </div>
-      <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" />
-      <SimCheck v-else-if="page === 'simcheck'" :token="token" :user="user" @logout="logout" />
-      <AtmAdmin v-else :token="token" :user="user" @logout="logout" />
+      <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
+      <SimCheck v-else-if="page === 'simcheck'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
+      <AtmAdmin v-else :token="token" :user="user" @logout="logout" @navigate="page = $event" />
     </template>
   </div>
 </template>
@@ -25,6 +41,12 @@ import SimCheck from './SimCheck.vue';
 
 const STORAGE_KEY = 'atm_checklist_session';
 
+// Today's date on this computer, as YYYY-MM-DD.
+function localToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 export default {
   name: 'App',
   components: { Login, Checklist,AtmAdmin,SimCheck },
@@ -35,6 +57,7 @@ export default {
       requireLogin: true, // assume true until we hear back from the backend
       checkedAuthConfig: false,
       page:'checklist',
+      today: localToday(),
     };
   },
   methods: {
@@ -82,5 +105,3 @@ export default {
   },
 };
 </script>
-
-

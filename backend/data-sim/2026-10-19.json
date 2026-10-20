@@ -497,6 +497,21 @@
       "statusLost": false
     },
     {
+      "atmid": "0304020440",
+      "adress": "thongpou",
+      "province": "030-CHAMPASAK",
+      "ip": "11.23.442.1",
+      "email": "thongpu@example.com",
+      "connStatusConnect": false,
+      "connStatusDisconnect": true,
+      "alarmOff": false,
+      "alarmOn": true,
+      "connectTypeWan": false,
+      "connectTypeGprs": true,
+      "statusConnect": true,
+      "statusLost": false
+    },
+    {
       "atmid": "05000100",
       "adress": "Lattanalangsai",
       "province": "050-SAVANNAKHET",
@@ -887,5 +902,5 @@
       "statusLost": false
     }
   ],
-  "savedAt": "10/19/2026, 10:51:23 AM"
+  "savedAt": "10/19/2026, 3:41:46 PM"
 }
