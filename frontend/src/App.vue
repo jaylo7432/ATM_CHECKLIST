@@ -17,13 +17,14 @@
             </div>
           </div>
           <div class="right">
-            <div>Số: ............/BB-PHÒNG THẺ.HSC</div>
-            <div><i>Vientiane, {{ today }}</i></div>
           </div>
         </div>
         <div class="dept">PHÒNG THẺ - HSC</div>
         <div class="title">BIÊN BẢN KIỂM TRA ĐẦU NGÀY</div>
         <div class="sub">(Hệ thống camera giám sát và báo động ATM)</div>
+        <div class="head1">I.   Kiểm tra hệ thống Camera giám sát an ninh</div>
+        <div class="head2">1.   Kiểm tra trạng thái kết nối của thiết bị Camera</div>
+        <hr class="doc-line" />
       </div>
       <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
       <SimCheck v-else-if="page === 'simcheck'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />

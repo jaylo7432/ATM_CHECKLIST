@@ -397,6 +397,64 @@ function escapeHtml(s) {
 }
 
 
+// Logo for the top of the PDF reports. Looks for logo.jpg / logo.png in the
+// frontend "public" folder (or the built "dist" folder). If none is found the
+// header is printed without a logo, so the PDF still works.
+function logoHtml() {
+  const names = ['logo.jpg', 'logo.jpeg', 'logo.png'];
+  const folders = [path.join(__dirname, '..', 'frontend', 'public'), FRONTEND_DIST, __dirname];
+  for (const folder of folders) {
+    for (const name of names) {
+      try {
+        const file = path.join(folder, name);
+        if (!fs.existsSync(file)) continue;
+        const mime = name.endsWith('.png') ? 'image/png' : 'image/jpeg';
+        return `<img class="hdr-logo" src="data:${mime};base64,${fs.readFileSync(file).toString('base64')}" />`;
+      } catch (e) { /* try the next one */ }
+    }
+  }
+  return '';
+}
+
+// Heading printed at the top of the PDF reports (same wording as the web page).
+function reportHeader() {
+  return `
+<div class="hdr">
+  <div class="hdr-nation">CỘNG HÒA DÂN CHỦ NHÂN DÂN LÀO</div>
+  <div class="hdr-motto">Hòa Bình - Độc lập - Dân chủ - Thống nhất - Thịnh vượng</div>
+  <hr class="hdr-line" />
+  <div class="hdr-row">
+    ${logoHtml()}
+    <div class="hdr-names">
+      <div class="hdr-bank1">ທະນາຄານຮ່ວມທຸລະກິດລາວຫວຽດ</div>
+      <div class="hdr-bank2">NGÂN HÀNG LIÊN DOANH LÀO VIỆT</div>
+    </div>
+  </div>
+  <div class="hdr-dept">PHÒNG THẺ - HSC</div>
+  <div class="hdr-title">BIÊN BẢN KIỂM TRA ĐẦU NGÀY</div>
+  <div class="hdr-sub">(Hệ thống camera giám sát và báo động ATM)</div>
+   <div class="hdr-h1">I.   Kiểm tra hệ thống Camera giám sát an ninh</div>
+   <div class="hdr-h2">1.   Kiểm tra trạng thái kết nối của thiết bị Camera</div>
+  <hr class="hdr-line" />
+</div>`;
+}
+
+const HDR_CSS = `
+  .hdr { text-align: center; margin-bottom: 6px; }
+  .hdr-nation { font-weight: bold; font-size: 17px; }
+  .hdr-motto { font-weight: bold; font-size: 15px; }
+  .hdr-line { border: 0; border-top: 1.5px solid #000; margin: 5px 0; }
+  .hdr-row { display: flex; align-items: center; gap: 10px; text-align: left; margin: 4px 0; }
+  .hdr-logo { width: 150px; height: 55px; object-fit: cover; object-position: 50% 50%; }
+  .hdr-bank1 { font-weight: bold; font-size: 17px; text-align: left; }
+  .hdr-bank2 { font-weight: bold; font-size: 17px; text-align: right; }
+  .hdr-dept { font-weight: bold; font-size: 12px; text-align: left; }
+  .hdr-title { font-weight: bold; font-size: 14px; margin-top: 4px; }
+  .hdr-sub { font-style: italic; font-size: 10px; margin-bottom: 20px; }
+  .hdr-h1{  font-size: 15px; text-align: left;font-weight: bold; }
+  .hdr-h2{  font-size: 15px;text-align: left;font-weight: bold;padding: 15px 15px; }
+`;
+
 function buildReportHtml(date,rows,savedAt){
   const box = (v) =>  `<span class="box${v ? ' on' : ''}"></span>`;
   const isFault = (r) => Object.keys(FIELD_LABELS).some((k) =>r[k] === true);
@@ -441,6 +499,7 @@ return `<!DOCTYPE html>
   body { font-family: 'Segoe UI', 'Leelawadee UI', Arial, sans-serif; font-size: 9px; color: #222; }
   h1{font-size:16px;margin: 0 0 4px; }
   .meta { margin-bottom: 8px; color: #555; }
+  ${HDR_CSS}
   table { border-collapse: collapse; width: 100%; }
   th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
   th { background: #f2f4f7; }
@@ -460,7 +519,7 @@ return `<!DOCTYPE html>
 
 
 <body>
-<h1>Daily ATM Check</h1>
+${reportHeader()}
 <div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;
@@ -529,6 +588,7 @@ return `<!DOCTYPE html>
   body { font-family: 'Segoe UI', 'Leelawadee UI', Arial, sans-serif; font-size: 9px; color: #222; }
   h1{font-size:16px;margin: 0 0 4px; }
   .meta { margin-bottom: 8px; color: #555; }
+  ${HDR_CSS}
   table { border-collapse: collapse; width: 100%; }
   th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
   th { background: #f2f4f7; }
@@ -547,7 +607,7 @@ return `<!DOCTYPE html>
 </style></head>
 
 <body>
-<h1>SIM / Alarm Check</h1>
+${reportHeader()}
 <div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;

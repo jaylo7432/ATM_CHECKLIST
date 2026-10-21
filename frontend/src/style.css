@@ -19,19 +19,21 @@ body {
   justify-content: flex-end;
   align-items: center; 
   gap: 12px;
-  font-size: 13px; 
+  font-size: 14px; 
   color: #555; 
   margin-bottom: 10px;
 }
 
-.btn-logout { background: #f2f4f7;
+.btn-logout { 
+  background: #f7f2f2;
    color: #444; 
    padding: 5px 12px;
-   font-size: 12px;
+   font-size: 14px;
+   
   }
 
 .btn-logout:hover { 
-   background: #19c6cffc; 
+   background: #2d9aa0; 
 }
 
 .login-wrap {
@@ -107,7 +109,10 @@ h1 {
   margin-bottom: 4px; 
 }
 
-.sub { color: #666; margin-bottom: 20px; font-size: 14px; }
+.sub { color: #666; 
+  margin-bottom: 20px; 
+  font-size: 14px; 
+}
 
 .toolbar {
   display: flex;
@@ -274,18 +279,30 @@ td.box input[type="checkbox"] {
 }
 
 .page-tabs {
-  display: flex; width: fit-content; gap: 4px; margin: 8px 0 16px;
-  background: white; border: 1px solid var(--border); border-radius: 10px;
-  padding: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-  position: sticky; top: 8px; z-index: 100;
+  display: flex;
+  width: fit-content;
+  gap: 4px;
+  margin: 8px 0 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  
 }
 
 .page-tabs button {
-  padding: 8px 18px; border: none; border-radius: 7px;
-  background: transparent; color: #555;
-  cursor: pointer; font-weight: 600; font-size: 13px;
+  padding: 8px 18px; 
+  border: none; 
+  border-radius: 7px;
+  background: transparent; 
+  color: #555;
+  cursor: pointer; 
+  font-weight: 600; 
+  font-size: 13px;
   transition: background .15s ease, color .15s ease;
 }
+
 .page-tabs button:hover { background: #f2f4f7; }
 .page-tabs button.active { background: #1a56db; color: #fff; }
 .page-tabs button.active:hover { background: #1a56db; }
@@ -433,16 +450,83 @@ td.actions-cell button {
   padding: 6px 12px;
 }
 
-.doc-header { text-align: center; margin: 12px auto; max-width: 1450px; }
-.doc-header .nation { font-weight: bold; font-size: 25px; }
-.doc-header .motto { font-weight: bold; font-size: 23px; }
-.doc-header .row { display: flex; justify-content: space-between; align-items: center; margin: 10px 0; text-align: left; }
-.doc-header .left { display: flex; align-items: center; gap: 10px; }
-.doc-header .logo { height: 230px; width: 300px; }
-.doc-header .bank1 { font-weight: bold; font-size: 25px;text-align: left; }
-.doc-header .bank2 { font-weight: bold; font-size: 25px;text-align: right;}
-.doc-header .right { text-align: right; font-size: 13px; }
-.doc-header .title { font-weight: bold; font-size: 18px; margin-top: 8px; }
-.doc-header .sub { font-style: italic; }
-.doc-line { border: 0; border-top: 3px solid #000000; margin: 12px 0; }
-.doc-header .dept{ font-weight: bold; text-align: left;font-size: 25px;}
+.doc-header { 
+  text-align: center;
+  margin: 12px auto;
+  max-width: 1450px; 
+  }
+
+
+.doc-header .nation { 
+  font-weight: bold; 
+  font-size: 25px; 
+ }
+
+.doc-header .motto { font-weight: bold; 
+  font-size: 23px; 
+}
+
+.doc-header .row { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin: 10px 0; 
+  text-align: left; 
+}
+
+.doc-header .left { 
+  display: flex;  
+  gap: 20px; 
+}
+
+.doc-header .logo {  
+  width: 280px; 
+}
+
+.doc-header .bank1 { font-weight: bold; 
+  font-size: 25px;
+  text-align: left; 
+}
+
+.doc-header .bank2 { font-weight: bold; 
+  font-size: 25px;
+  text-align: right;
+}
+
+.doc-header .right { text-align: right; 
+  font-size: 13px; 
+}
+
+.doc-header .title { font-weight: bold; 
+  font-size: 18px; 
+  margin-top: 8px; 
+}
+
+.doc-header .sub { 
+  font-style: italic; 
+}
+
+.doc-line { 
+  border: 0; 
+  border-top: 2px solid #000000; 
+  margin: 12px 0; 
+}
+
+.doc-header .dept{ 
+  font-weight:bold; 
+  text-align: left;
+  font-size: 23px;
+}
+
+.head1{
+  font-size: 20px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.head2{
+    font-size: 20px;
+  text-align: left;
+  font-weight: bold;
+  padding: 15px 15px;
+}
