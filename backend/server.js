@@ -417,7 +417,8 @@ function logoHtml() {
 }
 
 // Heading printed at the top of the PDF reports (same wording as the web page).
-function reportHeader() {
+function reportHeader(date) {
+  const [y, m, d] = String(date).split('-').map(escapeHtml);
   return `
 <div class="hdr">
   <div class="hdr-nation">CỘNG HÒA DÂN CHỦ NHÂN DÂN LÀO</div>
@@ -428,6 +429,10 @@ function reportHeader() {
     <div class="hdr-names">
       <div class="hdr-bank1">ທະນາຄານຮ່ວມທຸລະກິດລາວຫວຽດ</div>
       <div class="hdr-bank2">NGÂN HÀNG LIÊN DOANH LÀO VIỆT</div>
+    </div>
+    <div class="hdr-right">
+      <div>Số:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/BB-PHÒNG THẺ.HSC</div>
+      <div><i>Vientiane, ngày ............ tháng ........... năm .......</i></div>
     </div>
   </div>
   <div class="hdr-dept">PHÒNG THẺ - HSC</div>
@@ -445,14 +450,15 @@ const HDR_CSS = `
   .hdr-motto { font-weight: bold; font-size: 15px; }
   .hdr-line { border: 0; border-top: 1.5px solid #000; margin: 5px 0; }
   .hdr-row { display: flex; align-items: center; gap: 10px; text-align: left; margin: 4px 0; }
-  .hdr-logo { width: 150px; height: 55px; object-fit: cover; object-position: 50% 50%; }
+  .hdr-logo { width: 150px; height: 55px; object-fit: cover; object-position: 50% 50%;margin-top:15px; }
   .hdr-bank1 { font-weight: bold; font-size: 17px; text-align: left; }
   .hdr-bank2 { font-weight: bold; font-size: 17px; text-align: right; }
   .hdr-dept { font-weight: bold; font-size: 12px; text-align: left; }
-  .hdr-title { font-weight: bold; font-size: 14px; margin-top: 4px; }
-  .hdr-sub { font-style: italic; font-size: 10px; margin-bottom: 20px; }
+  .hdr-title { font-weight: bold; font-size: 14px; margin-top: 40px;text-align: center; }
+  .hdr-sub { font-style: italic; font-size: 10px; margin-bottom: 20px;text-align: center; }
   .hdr-h1{  font-size: 15px; text-align: left;font-weight: bold; }
-  .hdr-h2{  font-size: 15px;text-align: left;font-weight: bold;padding: 15px 15px; }
+  .hdr-h2{  font-size: 15px;text-align: left;font-weight: bold;padding: 15px 15px;}
+  .hdr-right { margin-left: auto; text-align: right; font-size: 11px; position: relative; top: 45px; }
 `;
 
 function buildReportHtml(date,rows,savedAt){
@@ -519,7 +525,7 @@ return `<!DOCTYPE html>
 
 
 <body>
-${reportHeader()}
+${reportHeader(date)}
 <div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;
@@ -607,7 +613,7 @@ return `<!DOCTYPE html>
 </style></head>
 
 <body>
-${reportHeader()}
+${reportHeader(date)}
 <div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;
