@@ -444,6 +444,25 @@ function reportHeader(date) {
 </div>`;
 }
 
+// Remarks + signature block printed under the table in the PDF reports.
+function reportFooter() {
+  const line = '<div class="ftr-line"></div>';
+  return `
+<div class="ftr">
+  <div class="ftr-title">Nhận xét kết quả kiểm tra</div>
+  ${line}${line}${line}
+  ${line}${line}${line}
+  ${line}${line}
+  <div class="ftr-sign">
+    <div>NGƯỜI KIỂM SOÁT</div>
+    <div>NGƯỜI THỰC HIỆN</div>
+  </div>
+</div>`;
+}
+
+
+
+
 const HDR_CSS = `
   .hdr { text-align: center; margin-bottom: 6px; }
   .hdr-nation { font-weight: bold; font-size: 17px; }
@@ -459,6 +478,10 @@ const HDR_CSS = `
   .hdr-h1{  font-size: 15px; text-align: left;font-weight: bold; }
   .hdr-h2{  font-size: 15px;text-align: left;font-weight: bold;padding: 15px 15px;}
   .hdr-right { margin-left: auto; text-align: right; font-size: 11px; position: relative; top: 45px; }
+  .ftr { margin-top: 14px; page-break-inside: avoid; font-size: 11px; }
+  .ftr-title { text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
+  .ftr-line { border-bottom: 1px dotted #000; height: 20px; }
+  .ftr-sign { display: flex; justify-content: space-between; margin: 45px 40px 0; height: 110px; font-weight: bold; font-size: 12px; }
 `;
 
 function buildReportHtml(date,rows,savedAt){
@@ -547,6 +570,7 @@ ${reportHeader(date)}
     </thead>
     <tbody>${body}</tbody>
   </table>
+  ${reportFooter()}
 </body></html>`;
 }
 
@@ -635,6 +659,7 @@ ${reportHeader(date)}
     </thead>
     <tbody>${body}</tbody>
   </table>
+  ${reportFooter()}
 </body></html>`;
 }
 
