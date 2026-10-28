@@ -416,8 +416,24 @@ function logoHtml() {
   return '';
 }
 
+const SIM_SECTION = `
+  <div class="hdr-h1">II.   Kiểm tra hệ thống cảnh báo báo động ATM</div>
+  <div class="hdr-h2">1.   Kiểm tra trạng thái kết nối của máy chủ</div>
+  <div class="hdr-txt">-   Thực hiện Ping từ máy tính cá nhân đến địa chỉ IP 10.1.32.49</div>
+  <table class="hdr-ping"><tr>
+    <td><span class="box on"></span> Kết nối</td>
+    <td><span class="box"></span> Mất kết nối</td>
+  </tr></table>
+  <div class="hdr-h2">2.   Kiểm tra trạng thái kết nối của các bộ báo động với máy chủ</div>
+  <div class="hdr-txt">-   Mở trình duyệt lên và gõ địa chỉ IP của máy chủ <b><u>http://10.1.32.49</u></b></div>
+  <div class="hdr-txt">    và đăng nhập với phần mềm bằng User: 010admin ; Password: ******</div></div>
+  <div class="hdr-txt">-   Kiểm tra các trạng thái của bộ báo động với máy chủ</div>`;
+
+
+
+
 // Heading printed at the top of the PDF reports (same wording as the web page).
-function reportHeader(date) {
+function reportHeader(date,sectionHtml) {
   const [y, m, d] = String(date).split('-').map(escapeHtml);
   return `
 <div class="hdr">
@@ -438,8 +454,8 @@ function reportHeader(date) {
   <div class="hdr-dept">PHÒNG THẺ - HSC</div>
   <div class="hdr-title">BIÊN BẢN KIỂM TRA ĐẦU NGÀY</div>
   <div class="hdr-sub">(Hệ thống camera giám sát và báo động ATM)</div>
-   <div class="hdr-h1">I.   Kiểm tra hệ thống Camera giám sát an ninh</div>
-   <div class="hdr-h2">1.   Kiểm tra trạng thái kết nối của thiết bị Camera</div>
+  ${sectionHtml || `<div class="hdr-h1">I.   Kiểm tra hệ thống Camera giám sát an ninh</div>
+  <div class="hdr-h2">1.   Kiểm tra trạng thái kết nối của thiết bị Camera</div>`}
   <hr class="hdr-line" />
 </div>`;
 }
@@ -482,6 +498,9 @@ const HDR_CSS = `
   .ftr-title { text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 10px; }
   .ftr-line { border-bottom: 1px dotted #000; height: 20px; }
   .ftr-sign { display: flex; justify-content: space-between; margin: 45px 40px 0; height: 110px; font-weight: bold; font-size: 12px; }
+  .hdr-txt { font-size: 13px; text-align: left; margin: 0 0 5px 25px; position: relative; top: -3px; }
+  .hdr-ping { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+  .hdr-ping td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; width: 50%; }
 `;
 
 function buildReportHtml(date,rows,savedAt){
@@ -530,7 +549,7 @@ return `<!DOCTYPE html>
   .meta { margin-bottom: 8px; color: #555; }
   ${HDR_CSS}
   table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
+  th, td { border: 1px solid #888; padding: 3px 3px; text-align: center; }
   th { background: #f2f4f7; }
   td.left { text-align: left; }
     tr.fault td { background: #e7e1e1; }
@@ -620,7 +639,7 @@ return `<!DOCTYPE html>
   .meta { margin-bottom: 8px; color: #555; }
   ${HDR_CSS}
   table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #888; padding: 2px 3px; text-align: center; }
+  th, td { border: 1px solid #888; padding: 3px 3px; text-align: center; }
   th { background: #f2f4f7; }
   td.left { text-align: left; }
     tr.fault td { background: #e7e1e1; }
@@ -637,7 +656,7 @@ return `<!DOCTYPE html>
 </style></head>
 
 <body>
-${reportHeader(date)}
+${reportHeader(date, SIM_SECTION)}
 <div class ='meta'>
   Inspection date:<b>${escapeHtml(date)}</b> &nbsp;|&nbsp;
   Saved at: ${escapeHtml(savedAt || '-')} &nbsp;|&nbsp;

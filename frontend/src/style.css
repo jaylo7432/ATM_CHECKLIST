@@ -557,4 +557,7 @@ td.actions-cell button {
   font-style: italic;
   margin-bottom: 10px;
 }
-
+ 
+  .hdr-txt { font-size: 13px; text-align: left; margin: 3px 0 3px 25px; }
+  .hdr-ping { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+  .hdr-ping td { border: 1px solid #000; padding: 4px; text-align: center; font-size: 13px; width: 50%; }
