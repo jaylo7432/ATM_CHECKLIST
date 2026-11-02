@@ -1073,6 +1073,37 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     }
   }
 
+
+  if (pathname === '/api/history' && req.method === 'GET') {
+    const FAULTS = {
+      atm:['camConectDisconnect','camworkDisconnect','drvConectDisconnect','camSaveDisconnect'],
+      sim:['conStatusDisconnect','alarmOn','connectTypeGprs','statusLost'],
+    };
+
+    const byDate = {};
+    for(const[type,dir] of [['atm',DATA_DIR],['sim',SIM_DATA_DIR]]){
+      if(!fs.existsSync(dir)) continue;
+      for(const f of fs.readdirSync(dir)){
+        if (!/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) continue;
+        const date = f.replace('.json', '');
+        try{
+          const c = JSON.parse(fs.readFileSync(path.join(dir,f),'utf-8'));
+          const rows = c.rows || [];
+          const bad = rows.filter((r) => FAULTS[type].some((k) => r[k]));
+          byDate[date] = byDate[date] || {date};
+          byDate[date][type] = {
+            total:rows.length,
+            faults:bad.length,
+            faultIds:bad.map((r) => r.atmid),
+            sateAt:c.saveAt || null,
+          };
+        }catch(e){/*kharm file t arn br dai*/}
+      }
+    }
+    const list = Object.values(byDate).sort((x,y) => (x.date<y.date?1:-1));
+    return sendJSON(res,200,{days:list}); 
+  }
+
   // ---------- Production: serve built Vue frontend (frontend/dist) ----------
   return serveStatic(req, res, pathname);
 });

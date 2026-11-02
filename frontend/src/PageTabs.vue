@@ -3,6 +3,7 @@
     <button :class="{ active: page === 'checklist' }" @click="$emit('navigate', 'checklist')">📋 ATM Check</button>
     <button :class="{ active: page === 'simcheck' }" @click="$emit('navigate', 'simcheck')">📶 SIM Check</button>
     <button :class="{ active: page === 'admin' }" @click="$emit('navigate', 'admin')">Manage ATMs</button>
+    <button :class="{ active: page === 'history' }" @click="$emit('navigate', 'history')">🕘 History</button>
   </div>
 </template>
 
