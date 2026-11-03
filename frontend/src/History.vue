@@ -84,7 +84,7 @@ export default {
     ids(part) {
       if (!part || !part.faultIds || !part.faultIds.length) return '';
       const list = part.faultIds;
-      return list.length > 5 ? list.slice(0, 5).join(', ') + ' +' + (list.length - 5) : list.join(', ');
+      return list.length > 3 ? list.slice(0, 3).join(', ') + ' +' + (list.length - 3) : list.join(', ');
     },
     async authFetch(url) {
       const res = await fetch(url, { headers: { Authorization: `Bearer ${this.token}` } });

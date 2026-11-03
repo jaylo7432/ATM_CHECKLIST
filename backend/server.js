@@ -1074,34 +1074,56 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
   }
 
 
+  // ---------- History: สรุปผลตรวจย้อนหลังรายวัน (อ่านจาก Oracle ก่อน แล้วค่อยไฟล์) ----------
   if (pathname === '/api/history' && req.method === 'GET') {
     const FAULTS = {
-      atm:['camConectDisconnect','camworkDisconnect','drvConectDisconnect','camSaveDisconnect'],
-      sim:['conStatusDisconnect','alarmOn','connectTypeGprs','statusLost'],
+      atm: ['camConectDisconnect', 'camWorkDisconnect', 'drvConectDisconnect', 'camSaveDisconnect'],
+      sim: ['connStatusDisconnect', 'alarmOn', 'connectTypeGprs', 'statusLost'],
     };
-
+    const TABLES = { atm: 'checklist_records', sim: 'sim_records' };
+    const DIRS = { atm: DATA_DIR, sim: SIM_DATA_DIR };
     const byDate = {};
-    for(const[type,dir] of [['atm',DATA_DIR],['sim',SIM_DATA_DIR]]){
-      if(!fs.existsSync(dir)) continue;
-      for(const f of fs.readdirSync(dir)){
-        if (!/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) continue;
-        const date = f.replace('.json', '');
-        try{
-          const c = JSON.parse(fs.readFileSync(path.join(dir,f),'utf-8'));
+    for (const type of ['atm', 'sim']) {
+      const dates = new Set();
+      if (fs.existsSync(DIRS[type])) {
+        for (const f of fs.readdirSync(DIRS[type])) {
+          if (/^\d{4}-\d{2}-\d{2}\.json$/.test(f)) dates.add(f.replace('.json', ''));
+        }
+      }
+      try {
+        const p = await getPool();
+        if (p) {
+          const conn = await p.getConnection();
+          try {
+            const r = await conn.execute(
+              `SELECT TO_CHAR(record_date, 'YYYY-MM-DD') AS "d" FROM ${TABLES[type]} GROUP BY record_date`
+            );
+            r.rows.forEach((row) => dates.add(row.d));
+          } finally {
+            await conn.close();
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️  History: could not read dates from Oracle:', e.message);
+      }
+      for (const date of dates) {
+        try {
+          const c = await loadSavedResults(type, date);
+          if (!c) continue;
           const rows = c.rows || [];
           const bad = rows.filter((r) => FAULTS[type].some((k) => r[k]));
-          byDate[date] = byDate[date] || {date};
+          byDate[date] = byDate[date] || { date };
           byDate[date][type] = {
-            total:rows.length,
-            faults:bad.length,
-            faultIds:bad.map((r) => r.atmid),
-            sateAt:c.saveAt || null,
+            total: rows.length,
+            faults: bad.length,
+            faultIds: bad.map((r) => r.atmid),
+            savedAt: c.savedAt || null,
           };
-        }catch(e){/*kharm file t arn br dai*/}
+        } catch (e) { /* ข้ามวันที่อ่านไม่ได้ */ }
       }
     }
-    const list = Object.values(byDate).sort((x,y) => (x.date<y.date?1:-1));
-    return sendJSON(res,200,{days:list}); 
+    const list = Object.values(byDate).sort((x, y) => (x.date < y.date ? 1 : -1));
+    return sendJSON(res, 200, { days: list });
   }
 
   // ---------- Production: serve built Vue frontend (frontend/dist) ----------
