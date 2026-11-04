@@ -110,10 +110,9 @@ CREATE TABLE sim_records (
   status_lost             NUMBER(1) DEFAULT 0 CHECK (status_lost IN (0,1)),
   checked_by              VARCHAR2(100),
   saved_at                VARCHAR2(40),
-  created_at              TINESTAM DEFAULT CURRENT_TIMESTAMP,
-  constraint uniq_sim_date_atm UNIQUe (record_date,atmid)
+  created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uniq_sim_date_atm UNIQUE (record_date, atmid)
 );
-
 
 
 

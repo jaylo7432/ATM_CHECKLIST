@@ -24,8 +24,10 @@
         <div class="dept">PHÒNG THẺ - HSC</div>
         <div class="title">BIÊN BẢN KIỂM TRA ĐẦU NGÀY</div>
         <div class="sub">(Hệ thống camera giám sát và báo động ATM)</div>
-        <div class="head1">I.   Kiểm tra hệ thống Camera giám sát an ninh</div>
-        <div class="head2">1.   Kiểm tra trạng thái kết nối của thiết bị Camera</div>
+        <div class="head1" v-if="page === 'checklist'">I. Kiểm tra hệ thống Camera giám sát an ninh</div>
+        <div class="head2" v-if="page === 'checklist'">1. Kiểm tra trạng thái kết nối của thiết bị Camera</div>
+        <div class="head1" v-if="page === 'simcheck'">II. Kiểm tra hệ thống cảnh báo báo động ATM</div>
+        <div class="head2" v-if="page === 'simcheck'">1. Kiểm tra trạng thái kết nối của máy chủ</div>
         <hr class="doc-line" />
       </div>
       <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
