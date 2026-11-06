@@ -4,6 +4,7 @@
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const { autoCommit } = require('oracledb');
 
 let oracledb;
 try {
@@ -14,6 +15,23 @@ try {
 }
 
 const CONFIG_FILE = path.join(__dirname, 'config.json');
+
+function hashPassword(plain){
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(String(plain),salt,64).toString('hex');
+  return `scrypt$${salt}$${hash}`;
+}
+function verifyPassword(plain,stored){
+  if (!stored) return false;
+  if (stored.starsWith('scrypt$')){
+    const [,salt,hash] = stored.split('$');
+    const test = crypto.scryptSync(String(plain),salt,64);
+    const real = Buffer.from(hash,'hex');
+    return real.length === test.length && crypto.timingSafeEqual(real,test);
+  }
+  return stored === plain;
+}
+
 
 function loadConfig() {
   if (fs.existsSync(CONFIG_FILE)) {
@@ -87,30 +105,36 @@ function getSitesTableConfig() {
 // Returns the user row (without password) on success, or null on failure.
 // NOTE: Oracle upper-cases column names unless the alias is in "double quotes",
 // so every alias below is quoted to get lower-case keys back.
-async function checkLogin(username, password) {
+
+async function checkLogin(username,password){
   const p = await getPool();
-  if (!p) {
-    throw new Error('Database is not configured (check config.json "db" section and run "npm install").');
+  if (!p){
+    throw new Error('Database is not configured(check config.json "db" section and run "npm install").');
   }
   let conn;
-  try {
+  try{
     conn = await p.getConnection();
     const result = await conn.execute(
-      `SELECT id AS "id", username AS "username", password AS "password", display_name AS "displayName"
-       FROM users WHERE username = :username FETCH FIRST 1 ROWS ONLY`,
-      { username }
+      `SELECT id, username,password,display_name AS "displayName",role AS "role"
+      FORM users WHERE usename = :username FETCH 1 ROWS ONLY`,
+      {username}
     );
-    if (result.rows.length === 0) return null;
+    if(result.rows.length === 0) return null;
     const user = result.rows[0];
 
-    // Plain-text comparison (matches the current schema.sql).
-    // If you switch the "password" column to bcrypt hashes, replace this
-    // with: const bcrypt = require('bcrypt'); await bcrypt.compare(password, user.password)
-    if (user.password !== password) return null;
+    if(!verifyPassword(password,user.password)) return null;
 
-    return { id: user.id, username: user.username, displayName: user.displayName };
-  } finally {
-    if (conn) await conn.close();
+    //change normal password to auto password//
+    if(!String(user.password).startsWith('scrypt$')){
+      await conn.execute(
+        `UPDATE users SET password = :pw WHERE id = :id`,
+        {pw: hashPassword(password),id: user.id},
+        {autoCommit : true}
+      );
+    } 
+    return {id: user.id,username: user.username,displayName:user.displayName,role:user.role || 'checker'};
+  }finally{
+    if(conn) await conn.close();
   }
 }
 
@@ -242,6 +266,21 @@ async function insertAuditLog({ userId, actionType, targetRef, ipAddress }) {
     console.warn('⚠️  Failed to write audit log:', e.message || e);
   }
 }
+
+//manage user//
+async function listUsers(){
+    
+}
+
+
+
+
+
+
+
+
+
+
 
 module.exports = {
   loadConfig,

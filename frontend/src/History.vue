@@ -65,7 +65,7 @@
 
         <div v-if="dayLoading" style="padding:16px;color:#999;">Loading...</div>
         <template v-else>
-          <h3 style="margin:8px 0;">ATM Check ({{ dayAtm.length }})</h3>
+          <h3 style="margin:8px 0;">ATM Check Result ({{ dayAtm.length }})</h3>
           <div class="table-scroll">
             <table>
               <thead><tr><th>ATMID</th><th>Adress</th><th>Problem</th></tr></thead>
@@ -80,7 +80,7 @@
             </table>
           </div>
 
-          <h3 style="margin:16px 0 8px;">SIM Check ({{ daySim.length }})</h3>
+          <h3 style="margin:16px 0 8px;">SIM Check Result ({{ daySim.length }})</h3>
           <div class="table-scroll">
             <table>
               <thead><tr><th>ATMID</th><th>Adress</th><th>Problem</th></tr></thead>
