@@ -269,16 +269,102 @@ async function insertAuditLog({ userId, actionType, targetRef, ipAddress }) {
 
 //manage user//
 async function listUsers(){
-    
+  const p = await getPool();
+  if(!p) throw new Error('Database is not configured');
+  const conn = await p.getConnection();
+  try{
+    const r = await conn.execute(
+      `SELECT id AS "id",username AS "username",display_name AS "displayName",role AS "role",create_at AS "createAt"
+      FROM user ORDER BY username `
+    );
+    return r.rows;
+  }finally{
+    await conn.close();
+  }
 }
 
+async function assertOtherAdmin(conn,username){
+  const r = await conn.execute(
+    `SELECT COUNT(*) AS "n" FROM users WHERE role = 'admin' AND username <> :u`,{u:username}
+  );
+  if(r.rows[0].n < 1) throw new Error('Cannot remove the last admin');
+}
 
+async function createUser({username,password,displayName,role}){
+  const p = await getPool();
+  if(!p) throw new Error('Database is not configured');
+  const conn = await p.getConnection();
+  try{
+    await conn.execute(
+      `INSERT INTO users (username, password, display_name, role) VALUES(:u, :pw, :dn, :r)`,
+      {u: username, pw: hashPassword(password), dn: displayName || username, r:role === 'admin' ?
+        'admin' : 'checker'},
+        {autoCommit:true}
+    );
+  }catch (e){
+    if(/ORA-00001/.test(e.message)) throw new Error ('Username already exists');
+    throw e;
+  }finally{
+    await conn.close();
+  }
+}
 
+async function updateUser(username,{password,displayName,role}){
+  const p =await getPool();
+  if(!p) throw new Error('Database is not confiigured');
+  const conn = await p.getConnection();
+  try{
+    
+     const cur = await conn.execute(`SELECT role AS "role" FROM users WHERE username = :u`, { u: username });
 
+     if (cur.rows.length === 0) throw new Error('User not found');
+     const set = [];
+     const binds = {u: username};
+     if(password) {setServers.push('password = :pw'); binds.pw = hashPassword(password);}
+     if (displayName !== undefined) { sets.push('display_name = :dn'); binds.dn = displayName || null; }
+    if (role) {
+      const r = role === 'admin' ? 'admin' : 'checker';
+      if (cur.rows[0].role === 'admin' && r !== 'admin') await assertOtherAdmin(conn, username);
+      sets.push('role = :r');
+      binds.r = r;
+    }
+    if (sets.length === 0) return;
+    await conn.execute(`UPDATE users SET ${sets.join(', ')} WHERE username = :u`, binds, { autoCommit: true });
+  } finally {
+    await conn.close();
+  }
+}
 
+async function deleteUser(username) {
+  const p = await getPool();
+  if (!p) throw new Error('Database is not configured');
+  const conn = await p.getConnection();
+  try {
+    const cur = await conn.execute(`SELECT role AS "role" FROM users WHERE username = :u`, { u: username });
+    if (cur.rows.length === 0) throw new Error('User not found');
+    if (cur.rows[0].role === 'admin') await assertOtherAdmin(conn, username);
+    await conn.execute(`DELETE FROM users WHERE username = :u`, { u: username }, { autoCommit: true });
+  } finally {
+    await conn.close();
+  }
+}
 
-
-
+async function listAuditLogs(limit) {
+  const p = await getPool();
+  if (!p) throw new Error('Database is not configured');
+  const conn = await p.getConnection();
+  try {
+    const r = await conn.execute(
+      `SELECT user_id AS "userId", action_type AS "action", target_ref AS "target",
+              ip_address AS "ip", event_time AS "time"
+       FROM audit_logs ORDER BY event_time DESC FETCH FIRST :n ROWS ONLY`,
+      { n: Math.min(Number(limit) || 100, 500) }
+    );
+    return r.rows;
+  } finally {
+    await conn.close();
+  }
+}
 
 
 
