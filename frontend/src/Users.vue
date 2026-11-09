@@ -19,13 +19,13 @@
       <div>
         <label>Role</label>
         <select class="inp" v-model="form.role">
-          <option value="checker">checker (ตรวจอย่างเดียว)</option>
-          <option value="admin">admin (จัดการทุกอย่าง)</option>
+          <option value="checker">checker (check only)</option>
+          <option value="admin">admin (do it All)</option>
         </select>
       </div>
       <div>
         <label>Password</label>
-        <input class="inp" type="password" v-model="form.password" :placeholder="editing ? 'ว่างไว้ = ไม่เปลี่ยน' : 'password'" />
+        <input class="inp" type="password" v-model="form.password" :placeholder="editing ? 'non = not change' : 'password'" />
       </div>
       <button class="btn-save" @click="saveUser">{{ editing ? 'Update user' : 'Add user' }}</button>
       <button v-if="editing" class="btn-reset" @click="resetForm">Cancel</button>
@@ -53,7 +53,7 @@
       </table>
     </div>
 
-    <h2 style="margin:24px 0 8px;">Audit log (ล่าสุด 100 รายการ)</h2>
+    <h2 style="margin:24px 0 8px;">Audit log (latest 100 log)</h2>
     <button class="btn-reset" style="margin-bottom:8px;" @click="loadAudit">Refresh</button>
     <div class="table-scroll">
       <table>

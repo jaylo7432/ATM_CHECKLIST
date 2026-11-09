@@ -4,7 +4,6 @@
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { autoCommit } = require('oracledb');
 
 let oracledb;
 try {
@@ -23,7 +22,7 @@ function hashPassword(plain){
 }
 function verifyPassword(plain,stored){
   if (!stored) return false;
-  if (stored.starsWith('scrypt$')){
+  if (stored.startsWith('scrypt$')){
     const [,salt,hash] = stored.split('$');
     const test = crypto.scryptSync(String(plain),salt,64);
     const real = Buffer.from(hash,'hex');
@@ -115,8 +114,8 @@ async function checkLogin(username,password){
   try{
     conn = await p.getConnection();
     const result = await conn.execute(
-      `SELECT id, username,password,display_name AS "displayName",role AS "role"
-      FORM users WHERE usename = :username FETCH 1 ROWS ONLY`,
+      `SELECT id AS "id", username AS "username", password AS "password", display_name AS "displayName", role AS "role"
+      FROM users WHERE username = :username FETCH FIRST 1 ROWS ONLY`,
       {username}
     );
     if(result.rows.length === 0) return null;
@@ -274,8 +273,10 @@ async function listUsers(){
   const conn = await p.getConnection();
   try{
     const r = await conn.execute(
-      `SELECT id AS "id",username AS "username",display_name AS "displayName",role AS "role",create_at AS "createAt"
-      FROM user ORDER BY username `
+            `SELECT id AS "id", username AS "username", display_name AS "displayName",
+              role AS "role", created_at AS "createdAt"
+       FROM users ORDER BY username`
+
     );
     return r.rows;
   }finally{
@@ -318,9 +319,9 @@ async function updateUser(username,{password,displayName,role}){
      const cur = await conn.execute(`SELECT role AS "role" FROM users WHERE username = :u`, { u: username });
 
      if (cur.rows.length === 0) throw new Error('User not found');
-     const set = [];
+     const sets = [];
      const binds = {u: username};
-     if(password) {setServers.push('password = :pw'); binds.pw = hashPassword(password);}
+     if(password) {sets.push('password = :pw'); binds.pw = hashPassword(password);}
      if (displayName !== undefined) { sets.push('display_name = :dn'); binds.dn = displayName || null; }
     if (role) {
       const r = role === 'admin' ? 'admin' : 'checker';

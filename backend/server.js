@@ -1045,18 +1045,17 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
 // user + audit log (only admin can edit)//
 const userMatch = pathname.match(/^\/api\/users\/([^/]+)$/);
 const whoDid = () =>{
-  const s = getBaseRows(getBearerToken(req));
+  const s = getSession(getBearerToken(req));
   return s ? s.username : 'guest' ;
 };
 
 if (pathname === '/api/users' && req.method === 'GET'){
   try{
-    return sendJSON(res,200 {users: await listUsers()});
+    return sendJSON(res,200, {users: await listUsers()});
   }catch(e) {
     return sendJSON(res,500,{error: String(e.message || e)});
   }
 }
-
 
 if(pathname === '/api/users' && req.method === 'POST'){
   try{
@@ -1092,6 +1091,7 @@ if (userMatch && req.method === 'DELETE'){
     }
     await deleteUser(username);
     insertAuditLog({userId:whoDid(),actionType:'DELETE_USER',targetRef:username,ipAddress:getClientIp(req)});
+    return sendJSON(res,200,{ok:true});
   }catch(e) {
     return sendJSON(res,400,{error: String(e.message || e)});
   }

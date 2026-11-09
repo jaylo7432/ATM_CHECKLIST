@@ -33,6 +33,7 @@
       <Checklist v-if="page === 'checklist'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
       <SimCheck v-else-if="page === 'simcheck'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
       <History v-else-if="page === 'history'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
+      <Users v-else-if="page === 'users'" :token="token" :user="user" @logout="logout" @navigate="page = $event" />
       <AtmAdmin v-else :token="token" :user="user" @logout="logout" @navigate="page = $event" />
     </template>
   </div>
@@ -45,6 +46,7 @@ import Checklist from './Checklist.vue';
 import AtmAdmin from './AtmAdmin.vue';
 import SimCheck from './SimCheck.vue';
 import History from './History.vue';
+import Users from './Users.vue';
 
 const STORAGE_KEY = 'atm_checklist_session';
 
@@ -56,7 +58,7 @@ function localToday() {
 
 export default {
   name: 'App',
-  components: { Login, Checklist,AtmAdmin,SimCheck,History },
+  components: { Login, Checklist, AtmAdmin, SimCheck, History, Users },
   data() {
     return {
       token: null,
