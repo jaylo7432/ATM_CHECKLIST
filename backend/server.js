@@ -25,7 +25,7 @@ try {
   console.warn('⚠️  "nodemailer" is not installed — run "npm install" first to enable email alerts.');
 }
 const crypto = require('crypto');
-const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite } = require('./db');
+const { checkLogin, getSites, insertAuditLog, getPool, createSite, updateSite, deleteSite, listUsers, createUser, updateUser, deleteUser, listAuditLogs } = require('./db');
 const { saveRecords, loadRecords } = require('./records');
 const { json } = require('stream/consumers');
 
@@ -64,6 +64,15 @@ function getClientIp(req) {
   if (forwarded) return forwarded.split(',')[0].trim();
   return req.socket && req.socket.remoteAddress;
 }
+
+//true if admin request //
+function isAdminnRequest(req){
+  const cfg = loadConfig();
+  if(!(cfg && cfg.requireLogin)) return true;
+  const s = getSession(getBearerToken(req));
+  return !!(s && s.role === 'admin');
+}
+
 
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
@@ -263,7 +272,7 @@ async function checkLoginWithFallback(username,password){
   const users = JSON.parse(fs.readFileSync(LOCAL_USERS_FILE,'utf-8'));
   const match = users.find((u) => u.username === username && u.password === password);
   if(!match) return null;
-  return{username:match.username,displayName:match.displayName || match.username};
+    return{username:match.username,displayName:match.displayName || match.username,role:match.role || 'admin'};
 }
 //===========ATM master data CRUD(oracle first,locfile fallbacl)=====================
 function readLocalSites(){
@@ -779,7 +788,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/me' && req.method === 'GET') {
     const session = getSession(getBearerToken(req));
     if (!session) return sendJSON(res, 401, { error: 'not logged in' });
-    return sendJSON(res, 200, { username: session.username, displayName: session.displayName });
+        return sendJSON(res, 200, { username: session.username, displayName: session.displayName, role: session.role });
   }
 
 
@@ -797,6 +806,16 @@ const server = http.createServer(async (req, res) => {
       }
     }
   }
+
+const ADMIN_ONLY =
+pathname.startsWith('/api/users') ||
+pathname === '/api/audit' ||
+(pathname.startsWith('/api/atms') && req.method !=='GET');
+if(ADMIN_ONLY && !isAdminnRequest(req)){
+  return sendJSON(res,403,{error:'Admin only'});
+}
+
+
 
   // ---------- API ----------
   if (pathname === '/api/checklist' && req.method === 'GET') {
@@ -1023,7 +1042,68 @@ if (pathname === '/api/simcheck' && req.method === 'POST') {
     return sendJSON(res,200,{ok:true});
   }
 
+// user + audit log (only admin can edit)//
+const userMatch = pathname.match(/^\/api\/users\/([^/]+)$/);
+const whoDid = () =>{
+  const s = getBaseRows(getBearerToken(req));
+  return s ? s.username : 'guest' ;
+};
 
+if (pathname === '/api/users' && req.method === 'GET'){
+  try{
+    return sendJSON(res,200 {users: await listUsers()});
+  }catch(e) {
+    return sendJSON(res,500,{error: String(e.message || e)});
+  }
+}
+
+
+if(pathname === '/api/users' && req.method === 'POST'){
+  try{
+    const body = await readBody(req);
+    if(!body.username || !body.password){
+      return sendJSON(res,400,{error:'username and passoword are required'});
+    }
+    await createUser(body);
+    insertAuditLog({userId: whoDid(),actionType: 'CREATE_USER',targetRef: body.username,ipAddress:getClientIp(req)});
+    return sendJSON(res,200,{ok:true});
+  }catch(e){
+    return sendJSON(res,400,{error:String(e.message || e)});
+  }
+}
+
+if (userMatch && req.method === 'PUT'){
+  try{
+     const username = decodeURIComponent(userMatch[1]);
+     const body = await readBody(req);
+     await updateUser(username,body);
+     insertAuditLog({userId:whoDid(),actionType:'UPDATE_USER',targetRef:username,ipAddress:getClientIp(req)});
+     return sendJSON(res, 200, { ok: true });;
+  }catch(e){
+    return sendJSON(res,400,{error:String(e.message || e)});
+  }
+}
+
+if (userMatch && req.method === 'DELETE'){
+  try{
+    const username = decodeURIComponent(userMatch[1]);
+    if (username === whoDid()){
+      return sendJSON(res,400,{error: 'You cannot delete your own account'});
+    }
+    await deleteUser(username);
+    insertAuditLog({userId:whoDid(),actionType:'DELETE_USER',targetRef:username,ipAddress:getClientIp(req)});
+  }catch(e) {
+    return sendJSON(res,400,{error: String(e.message || e)});
+  }
+}
+
+if(pathname === '/api/audit' && req.method === 'GET'){
+try{
+  return sendJSON(res,200,{logs: await listAuditLogs(parsed.query.limit)});
+}catch (e){
+  return sendJSON(res,500,{error: String(e.message || e)});
+}
+}
 
   if (pathname === '/api/report/pdf' && req.method ==='GET'){
     const date = parsed.query.date;

@@ -379,4 +379,9 @@ module.exports = {
   createSite,
   updateSite,
   deleteSite,
+  listUsers,
+  createUser,
+  updateUser, 
+  deleteUser, 
+  listAuditLogs
 };
