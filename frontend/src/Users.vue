@@ -60,8 +60,8 @@
         <input class="inp" style="width:100%;box-sizing:border-box;" autocomplete="off" v-model.trim="addForm.displayName" placeholder="name" />
         <label style="margin-top:10px;display:block;">Role</label>
         <select class="inp" style="width:100%;box-sizing:border-box;" v-model="addForm.role">
-          <option value="checker">checker (ตรวจอย่างเดียว)</option>
-          <option value="admin">admin (จัดการทุกอย่าง)</option>
+          <option value="checker">checker (check only)</option>
+          <option value="admin">admin (do it all)</option>
         </select>
         <label style="margin-top:10px;display:block;">Password</label>
         <input class="inp" style="width:100%;box-sizing:border-box;" type="password" autocomplete="new-password" v-model="addForm.password" placeholder="password" />
