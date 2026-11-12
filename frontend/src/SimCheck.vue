@@ -17,6 +17,8 @@
         {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
       </button>
       <label style="cursor:pointer;"><input type="checkbox" v-model="onlyProblems" /> Show only problems</label>
+            <label>Search ATM: <input type="text" v-model.trim="search" placeholder="ATMID / address / province" /></label>
+            <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
       <span class="status-pill" :class="saved ? 'saved' : 'unsaved'">
       {{ saved ? ('Saved at ' + savedAt) : 'Not saved' }}
@@ -87,7 +89,7 @@
             </tr>
           </template>
           <tr v-if="groupedRows.length === 0">
-            <td colspan="12" style="padding:24px;color:#999;">{{ onlyProblems ? 'No problems found.' : 'No data.' }}</td>
+            <td colspan="12" style="padding:24px;color:#999;">{{ search ? 'No ATM matches your search.' : (onlyProblems ? 'No problems found.' : 'No data.') }}</td>
           </tr>
         </tbody>
 
@@ -124,11 +126,13 @@ export default{
       emailReport:null,
       exporting:false,
       onlyProblems:false,
+      search:'',
     };
   },
   computed:{
     groupedRows(){
-        const sorted = this.rows.filter((r) => !this.onlyProblems || this.isFault(r)).sort((a, b) => {
+      const q = this.search.toLowerCase();
+      const sorted = this.rows.filter((r) => !this.onlyProblems || this.isFault(r)).filter((r) => !q || String(r.atmid || '').toLowerCase().includes(q) || String(r.adress || '').toLowerCase().includes(q) || String(r.province || '').toLowerCase().includes(q)).sort((a, b) => {
         const pa = String(a.province || '').localeCompare(String(b.province || ''));
         if (pa !== 0) return pa;
         return String(a.atmid || '').localeCompare(String(b.atmid || ''));

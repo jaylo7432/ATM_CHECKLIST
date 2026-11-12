@@ -9,6 +9,8 @@
 
     <div class="toolbar">
       <button class="btn-save" @click="openNew">➕ Add new site</button>
+      <label>Search: <input type="text" v-model.trim="search" placeholder="ATMID / address / IP / email" /></label>
+      <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
     </div>
 
@@ -150,6 +152,10 @@
                 <tr v-if="sites.length === 0">
                     <td colspan="9" style="padding:24px;color:#999;">No ATM site yet.</td>
                 </tr>
+                <tr v-else-if="groupedSites.length === 0">
+                  <td colspan="9" style="padding:24px;color:#999;">No site matches your search.</td>
+                </tr>
+
             </tbody>
         </table>
     </div>
@@ -171,6 +177,7 @@ export default{
     data(){
         return{
             sites:[],
+            search:'',
             loading:false,
             saving:false,
             formOpen:false,
@@ -191,7 +198,8 @@ export default{
         return name ? `${prefix}-${name}` : 'Unassigned';
       },
       groupedSites(){
-        const sorted = [...this.sites].sort((a,b) =>{
+        const q = this.search.toLowerCase();
+        const sorted = [...this.sites].filter((s) => !q || [s.atmid, s.adress, s.province, s.ipCam, s.videoIp, s.ip, s.email].some((v) => String(v || '').toLowerCase().includes(q))).sort((a,b) =>{
           const pa = String(a.province || '').localeCompare(String(b.province || ''));
           if (pa !== 0) return pa;
           return String(a.atmid || '').localeCompare(String(b.atmid || ''));
