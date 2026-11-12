@@ -287,6 +287,10 @@ export default {
 };
 </script>
 
+
+
+้
+
 <style scoped>
 .inp { padding: 8px 10px; border: 1px solid #cfd4dc; border-radius: 8px; font-size: 14px; }
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }

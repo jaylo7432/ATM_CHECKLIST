@@ -12,6 +12,11 @@
         <label>Inspection date</label>
         <input type="date" v-model="date" @change="loadDate" />
       </div>
+      <div>
+        <label>Search ATM</label>
+        <input type="text" v-model.trim="search" placeholder="ATMID / address / province"/>
+        <button v-if="search" class="btn-reset" @click="search= ''">✕</button>
+      </div>
       <button class="btn-reset" @click="resetAll">✖ Clear all boxes</button>
       <button class="btn-save" @click="save" :disabled="saving">
         {{ saving ? 'Saving...' : '💾 Save & send alerts' }}
@@ -89,6 +94,9 @@
           <tr v-if="rows.length === 0">
             <td colspan="13" style="padding:24px;color:#999;">No data for this date.</td>
           </tr>
+          <tr v-else-if="groupedRows.length === 0">
+            <td colspan="13" style= "padding: 24px;color: #999;">No ATM matchs your search</td>
+          </tr>
         </tbody>
 
       </table>
@@ -141,6 +149,7 @@ export default {
       saving: false,
       exporting:false,
       emailReport: null,
+      search:'',
     };
   },
 
@@ -151,28 +160,42 @@ export default {
       const d = new Date(this.savedAt);
       return d.toLocaleString('en-US');
     },
-    groupedRows() {
-      const sorted = [...this.rows].sort((a, b) => {
+
+    groupedRows(){
+      const q = this.search.toLowerCase();
+      const matches = (row) =>
+      !q ||
+      String(row.atmid || '').toLowerCase().includes(q) ||
+      String(row.adress || '').toLowerCase().includes(q) ||
+      String(row.province || '').toLowerCase().includes(q);
+      const sorted = [...this.rows].sort((a,b) => {
         const pa = String(a.province || '').localeCompare(String(b.province || ''));
         if (pa !== 0) return pa;
         return String(a.atmid || '').localeCompare(String(b.atmid || ''));
       });
       const items = [];
       let currentProvince = null;
+      let headerAdded = false;
       let stt = 0;
-      for (const row of sorted) {
+      for (const row of sorted){
         const province = row.province || 'Unassigned';
-        if (province !== currentProvince) {
+        if (province !== currentProvince){
           currentProvince = province;
           stt = 0;
-          items.push({ type: 'header', province });
+          headerAdded = false;
         }
         stt += 1;
-        items.push({ type: 'row', row, stt });
+        if(!matches(row)) continue;
+        if(!headerAdded){
+          items.push({type:'header',province});
+          headerAdded =true;
+        }
+        items.push({type:'row', row,stt});
       }
       return items;
     },
   },
+
   methods: {
     hasError(row) {
       return FAULT_FIELDS.some((key) => row[key]);
