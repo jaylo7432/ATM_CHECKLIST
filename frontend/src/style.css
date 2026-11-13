@@ -660,3 +660,18 @@ html.dark .status-pill.unsaved {background: #3a1a18; color:#ff8a80}
 html.dark .email-report .note{background: #3a2e12; color: #f5c26b;}
 
 html.dark .doc-line {border-top-color:#e6e9f0;}
+
+html.dark .modal-overlay > div {
+  background: #1b2130;
+  color:#e6e9f0;
+}
+html.dark .modal-overlay > div h1,
+html.dark .modal-overlay > div h2,
+html.dark .modal-overlay > div h3,
+html.dark .modal-overlay > div h4{
+  color:#e6e9f0;
+}
+html.dark .modal-overlay > div button:not(.btn-save):not(.btn-reset) {
+  color: #e6e9f0;
+}
+

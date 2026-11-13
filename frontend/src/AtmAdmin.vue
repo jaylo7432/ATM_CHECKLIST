@@ -118,7 +118,7 @@
             <thead>
                 <tr>
                     <th>STT</th>
-                    <th>ATM</th>
+                    <th>ATMID</th>
                     <th>Adress</th>
                     <th>Province</th>
                     <th>IP_CAM</th>
