@@ -14,7 +14,7 @@
       </div>
       <div>
         <label>Search ATM</label>
-        <input type="text" v-model.trim="search" placeholder="ATMID / address / province"/>
+        <input type="text" class="search-input" v-model.trim="search" placeholder="ATMID / address / province"/>
         <button v-if="search" class="btn-reset" @click="search= ''">✕</button>
       </div>
       <button class="btn-reset" @click="resetAll">✖ Clear all boxes</button>

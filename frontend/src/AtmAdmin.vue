@@ -9,7 +9,7 @@
 
     <div class="toolbar">
       <button class="btn-save" @click="openNew">➕ Add new site</button>
-      <label>Search: <input type="text" v-model.trim="search" placeholder="ATMID / address / IP / email" /></label>
+      <label>Search: <input type="text" class="search-input"  v-model.trim="search" placeholder="ATMID / address / IP / email" /></label>
       <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
     </div>

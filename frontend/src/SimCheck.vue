@@ -17,7 +17,7 @@
         {{ exporting ? 'Creating PDF...' : '📄 Export PDF' }}
       </button>
       <label style="cursor:pointer;"><input type="checkbox" v-model="onlyProblems" /> Show only problems</label>
-            <label>Search ATM: <input type="text" v-model.trim="search" placeholder="ATMID / address / province" /></label>
+            <label>Search ATM: <input type="text" class="search-input"  v-model.trim="search" placeholder="ATMID / address / province" /></label>
             <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
       <span class="status-pill" :class="saved ? 'saved' : 'unsaved'">
