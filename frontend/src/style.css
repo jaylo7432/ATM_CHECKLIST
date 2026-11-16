@@ -628,7 +628,7 @@ html.dark .page-tabs,
 html.dark .theme-toggle{background: #1b2130;}
 
 html.dark .admin-form,
-html.dark .modal-box {background: #d1b2130; color: #e6e9f0;}
+html.dark .modal-box {background: #1b2130; color: #e6e9f0;}
 html.dark .admin-form .form-row label {color:#e6e9f0;}
 
 html.dark thead th {background: #232a3b; color:#e6e9f0;}
