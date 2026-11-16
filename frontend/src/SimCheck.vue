@@ -118,11 +118,12 @@ export default{
   emits:['logout','navigate'],
   data(){
     return{
-      date:new Date().toISOString().slice(0,10),
+      date:(() => { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; })(),
       rows:[],
       loading:false,
       saving:false,
       savedAt:null,
+      saved:false,
       emailReport:null,
       exporting:false,
       onlyProblems:false,
@@ -187,7 +188,7 @@ export default{
   },
   resetAll(){
     this.rows = this.rows.map((row) =>{
-      const cleared = { atmid: row.atmid, adress: row.adress, ip: row.ip };
+      const cleared = { ...row };
         Object.keys(DEFAULT_CHECKED).forEach((k) => {});
         ['connStatusConnect', 
         'connStatusDisconnect', 

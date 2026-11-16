@@ -41,7 +41,7 @@
         <tbody>
           <tr v-if="logs.length === 0"><td colspan="5" style="padding:16px;color:#999;">No logs.</td></tr>
           <tr v-for="(l, i) in logs" :key="i">
-            <td>{{ String(l.time || '').replace('T', ' ').slice(0, 19) }}</td>
+            <td>{{ laoTime(l.time) }}</td>
             <td>{{ l.userId }}</td>
             <td>{{ l.action }}</td>
             <td>{{ l.target }}</td>
@@ -174,6 +174,17 @@ export default {
       this.modalMessage = '';
 
     },
+
+    laoTime(t){
+      if (!t) return '';
+      const d = new Date(t);
+      if (isNaN(d.getTime())) return String(t);
+      const th = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+      const p = (n) => String(n).padStart(2, '0');
+      return th.getUTCFullYear() + '-' + p(th.getUTCMonth() + 1) + '-' + p(th.getUTCDate())
+        + ' ' + p(th.getUTCHours()) + ':' + p(th.getUTCMinutes()) + ':' + p(th.getUTCSeconds());
+    },
+
     async saveEdit(){
       const f = this.editForm;
       try{
@@ -202,6 +213,8 @@ export default {
         if (e.message !=='unauthorized') this.modalMessage = String(e);
       }
     },
+
+    
 
     async authFetch(url, options = {}) {
       const res = await fetch(url, {
@@ -286,10 +299,6 @@ export default {
   },
 };
 </script>
-
-
-
-้
 
 <style scoped>
 .inp { padding: 8px 10px; border: 1px solid #cfd4dc; border-radius: 8px; font-size: 14px; }

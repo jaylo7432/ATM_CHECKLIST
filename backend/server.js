@@ -1048,6 +1048,13 @@ const whoDid = () =>{
   const s = getSession(getBearerToken(req));
   return s ? s.username : 'guest' ;
 };
+// only the main admin ("admin") can create / edit / delete other admin accounts
+const MAIN_ADMIN = 'admin';
+const isMainAdmin = () => {
+  const cfg = loadConfig();
+  if (!(cfg && cfg.requireLogin)) return true;
+  return whoDid() === MAIN_ADMIN;
+};
 
 if (pathname === '/api/users' && req.method === 'GET'){
   try{
@@ -1063,6 +1070,9 @@ if(pathname === '/api/users' && req.method === 'POST'){
     if(!body.username || !body.password){
       return sendJSON(res,400,{error:'username and passoword are required'});
     }
+    if (body.role === 'admin' && !isMainAdmin()){
+      return sendJSON(res,403,{error:'Only the main admin can create admin accounts'});
+    }
     await createUser(body);
     insertAuditLog({userId: whoDid(),actionType: 'CREATE_USER',targetRef: body.username,ipAddress:getClientIp(req)});
     return sendJSON(res,200,{ok:true});
@@ -1075,9 +1085,16 @@ if (userMatch && req.method === 'PUT'){
   try{
      const username = decodeURIComponent(userMatch[1]);
      const body = await readBody(req);
+     if (!isMainAdmin()){
+       const target = (await listUsers()).find((u) => u.username === username);
+       const targetIsAdmin = !!(target && target.role === 'admin');
+       if ((targetIsAdmin && username !== whoDid()) || (body.role === 'admin' && !targetIsAdmin)){
+         return sendJSON(res,403,{error:'Only the main admin can edit admin accounts'});
+       }
+     }
      await updateUser(username,body);
      insertAuditLog({userId:whoDid(),actionType:'UPDATE_USER',targetRef:username,ipAddress:getClientIp(req)});
-     return sendJSON(res, 200, { ok: true });;
+     return sendJSON(res, 200, { ok: true });
   }catch(e){
     return sendJSON(res,400,{error:String(e.message || e)});
   }
@@ -1088,6 +1105,12 @@ if (userMatch && req.method === 'DELETE'){
     const username = decodeURIComponent(userMatch[1]);
     if (username === whoDid()){
       return sendJSON(res,400,{error: 'You cannot delete your own account'});
+    }
+    if (!isMainAdmin()){
+      const target = (await listUsers()).find((u) => u.username === username);
+      if (target && target.role === 'admin'){
+        return sendJSON(res,403,{error:'Only the main admin can delete admin accounts'});
+      }
     }
     await deleteUser(username);
     insertAuditLog({userId:whoDid(),actionType:'DELETE_USER',targetRef:username,ipAddress:getClientIp(req)});

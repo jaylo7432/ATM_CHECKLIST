@@ -113,6 +113,44 @@
     </div>
     </div>
 
+   <div v-if="histOpen" class="modal-overlay" @click.self = "histOpen = false">
+    <div class="admin-form" style="padding: 24px ;max-width: 680px;">
+      <div class="modal-header">
+        <h2>History : {{ histSite ? histSite.atmid + ' - ' + histSite.adress:''}}</h2>
+        <button class="btn-close" @click="histOpen = false">✕</button>
+      </div>
+      <div v-if="histLoading">Loading...</div>
+      <template v-else>
+        <p style="font-size:14px;margin:0 0 12px;">
+          Checked {{ histDays.length }} day(s) . Problems {{ histProblemCount }} day(s)
+        </p>
+        <table style="min-width: 0;">
+          <thead>
+            <tr><th>Date</th><th>ATM Check</th><th>SIM Check</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="d in histDays" :key="d.date">
+              <td>{{ d.date }}</td>
+              <td :style="{ color: d.atm ? '#d93025' : '' }">{{ d.atm === null ? '-' : (d.atm ? '✖ Problem' : '✔ OK') }}</td>
+              <td :style="{ color: d.sim ? '#d93025' : '' }">{{ d.sim === null ? '-' : (d.sim ? '✖ Problem' : '✔ OK') }}</td>
+            </tr>
+            <tr v-if="histDays.length === 0">
+            <td colspan="3" style="padding: 16px;color: #999;">No history yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+    </div>
+   </div>
+
+
+
+
+
+
+
+
+
     <div class="table-scroll">
               <table>
             <thead>
@@ -146,6 +184,7 @@
                     <td class="actions-cell">
                       <button class="btn-reset" @click="openEdit(item.site)">Edit</button>
                       <button class="btn-reset" @click="remove(item.site)">Delete</button>
+                      <button class="btn-reset" @click="openHistory(item.site)">History</button>
                     </td>
                   </tr>
                 </template>
@@ -185,6 +224,10 @@ export default{
             provinceCodes:{},
             form: { atmid: '', adress: '', ipCam: '', videoIp: '', ip: '', email: '' },
             errors:{ atmid: '', adress: '', ipCam: '', videoIp: '', ip: '', email: '' },
+            histOpen:false,
+            histSite:null,
+            histDays:[],
+            histLoading:false,
         };
     },
 
@@ -192,6 +235,10 @@ export default{
       hasErrors() {
         return Object.values(this.errors).some((e) => !!e);
       },
+      histProblemCount(){
+        return this.histDays.filter((d) => d.atm || d.sim).length;
+      },
+
       previewProvince() {
         const prefix = String(this.form.atmid || '').slice(0, 3);
         const name = this.provinceCodes[prefix];
@@ -274,6 +321,27 @@ export default{
       },
       closeForm() {
         this.formOpen = false;
+      },
+
+      async openHistory(site) {
+        this.histSite = site;
+        this.histDays = [];
+        this.histOpen = true;
+        this.histLoading = true;
+        try{
+          const res = await this.authFetch('/api/history');
+          const data = await res.json();
+          const id = String(site.atmid);
+          this.histDays = (data.days || []).map((d) => ({
+            date: d.date,
+            atm: d.atm ? (d.atm.faultIds || []).map(String).includes(id) : null,
+            sim: d.sim ? (d.sim.faultIds || []).map(String).includes(id) : null,
+          }));
+        } catch (e){
+          if (e.message !== 'unauthorized') alert('Failed to load history: ' + e);
+        } finally {
+          this.histLoading =false;
+        }
       },
 
       validateField(field) {

@@ -21,7 +21,7 @@
 
 export default{
   name:'login',
-  emits:['login-sucess'],
+  emits:['login-success'],
   data(){
     return{
       username:'',
