@@ -187,6 +187,7 @@ export default{
     }
   },
   resetAll(){
+    if(!confirm('Clear every checlbox on this sheet?')) return;
     this.rows = this.rows.map((row) =>{
       const cleared = { ...row };
         Object.keys(DEFAULT_CHECKED).forEach((k) => {});
