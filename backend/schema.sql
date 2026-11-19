@@ -11,6 +11,7 @@ CREATE TABLE users (
   password      VARCHAR2(255) NOT NULL,
   display_name  VARCHAR2(150) DEFAULT NULL,
   created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  
 );
 
 MERGE INTO users u
