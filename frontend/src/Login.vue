@@ -45,7 +45,7 @@
           <img class="lg-logo" src="/logo.jpg" alt="LaoViet Bank" />
         </div>
         <p class="lg-hello">{{ greeting }} 👋</p>
-        <h1>Sign indddtedts</h1>
+        <h1>Sign in</h1>
       </main>
 
     </div>
