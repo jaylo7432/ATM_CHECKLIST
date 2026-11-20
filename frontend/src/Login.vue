@@ -186,9 +186,47 @@ export default {
       if (e && e.getModifierState) this.capsOn = e.getModifierState('CapsLock');
     },
     triggerShake() {
-      
-    }
-  }
-}
+      this.shake = false;
+      clearTimeout(ths.shakeTimer);
+      this.$nextTick(() => {
+        this.shake = true;
+        this.shakeTimer = setTimeout(() => {this.shake = false; }, 500);
+      });
+    },
+    async submit(){
+      this.loading = true;
+      this.error ='';
+
+      try{
+        const res = await fetch('/api/login',{
+          method:'POST',
+          headers:{'Content-Type' : 'application/json'},
+          body: JSON.stringify({username: this.username,password: this.password}),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          this.$emit('login-success', {token: data.token, user: data.user});
+        }else {
+          this.error = data.error || 'login failed';
+          this.triggerShake();
+        }
+      }catch (e) {
+        this.error = 'Clould not reach the server .' + e;
+        this.triggerShake();
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+  mounted() {
+    this.clockTimer = setInterval(() => {this.now = new Date(); }, 1000);
+    const m = window.matchMedia;
+    this.canTilt = !!(m && m('(hover: hover)').matches && !m('(prefers-reduced-motion:reduce)').matches);
+  },
+  beforeUnmount(){
+    clearInterval(this.clockTimer);
+    clearTimeout(this.shakeTimer);
+  },
+};
 
 </script>
