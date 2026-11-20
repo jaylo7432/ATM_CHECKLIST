@@ -769,6 +769,7 @@ html.dark .modal-overlay > div button:not(.btn-save):not(.btn-reset) {
   gap: 24px;
   background: linear-gradient(160deg,rgba(255,255,255,.16), rgba(255,255,255,.04));
   -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
   border-right: 1px solid rgba(255,255,255,.14);
 }
 
