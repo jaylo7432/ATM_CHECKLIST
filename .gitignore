@@ -1,3 +1,6 @@
 ﻿node_modules/
-backend/data
+dist/
 backend/config.json
+backend/local-users.json
+backend/data/
+backend/data-sim/
