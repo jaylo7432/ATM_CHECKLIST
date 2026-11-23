@@ -1123,3 +1123,12 @@ html.dark .lg-caps { background: #3a2e12; color: #f5c26b; }
 @keyframes lg-shine  { from { left: -60%; } to { left: 130%; } }
 @keyframes lg-rotate { to { transform: rotate(360deg); } }
 @keyframes lg-shake  { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+
+
+select.province-select {
+  width: 140px !important;
+  min-width: 0 !important;
+  padding: 8px 12px !important;
+  background-image: none !important;
+  cursor: pointer;
+}
