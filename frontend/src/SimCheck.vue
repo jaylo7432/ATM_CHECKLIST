@@ -19,6 +19,13 @@
       <label style="cursor:pointer;"><input type="checkbox" v-model="onlyProblems" /> Show only problems</label>
             <label>Search ATM: <input type="text" class="search-input"  v-model.trim="search" placeholder="ATMID / address / province" /></label>
             <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
+            <label>Province
+              <select class="search-input province-select" v-model="provinceFilter">
+                <option value="">All province</option>
+                <option v-for="p in provinceOptions" :key="p" :value="p">{{ p }}</option>
+              </select>
+            </label>
+
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
       <span class="status-pill" :class="saved ? 'saved' : 'unsaved'">
       {{ saved ? ('Saved at ' + savedAt) : 'Not saved' }}
@@ -128,12 +135,18 @@ export default{
       exporting:false,
       onlyProblems:false,
       search:'',
+      provinceFilter:'',
     };
   },
   computed:{
+    provinceOptions (){
+      const set = new Set(this.rows.map((r) => r.province || 'Unassigned'));
+      return [...set].sort((a, b) => a.localeCompare(b));
+    },
+
     groupedRows(){
       const q = this.search.toLowerCase();
-      const sorted = this.rows.filter((r) => !this.onlyProblems || this.isFault(r)).filter((r) => !q || String(r.atmid || '').toLowerCase().includes(q) || String(r.adress || '').toLowerCase().includes(q) || String(r.province || '').toLowerCase().includes(q)).sort((a, b) => {
+      const sorted = this.rows.filter((r) => (!this.provinceFilter || (r.province || 'Unassigned') === this.provinceFilter) && (!this.onlyProblems || this.isFault(r))).filter((r) => !q || String(r.atmid || '').toLowerCase().includes(q) || String(r.adress || '').toLowerCase().includes(q) || String(r.province || '').toLowerCase().includes(q)).sort((a, b) => {
         const pa = String(a.province || '').localeCompare(String(b.province || ''));
         if (pa !== 0) return pa;
         return String(a.atmid || '').localeCompare(String(b.atmid || ''));
@@ -187,7 +200,7 @@ export default{
     }
   },
   resetAll(){
-    if(!confirm('Clear every checlbox on this sheet?')) return;
+    if(!confirm('Clear every checkbox on this sheet?')) return;
     this.rows = this.rows.map((row) =>{
       const cleared = { ...row };
         Object.keys(DEFAULT_CHECKED).forEach((k) => {});

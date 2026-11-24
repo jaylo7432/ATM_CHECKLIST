@@ -17,6 +17,15 @@
         <input type="text" class="search-input" v-model.trim="search" placeholder="ATMID / address / province"/>
         <button v-if="search" class="btn-reset" @click="search= ''">✕</button>
       </div>
+
+      <div>
+        <label>Province</label>
+        <select class="search-input province-select" v-model="provinceFilter">
+          <option value="">ALL province</option>
+          <option v-for="p in provinceOptions" :key="p" :value="p">{{ p }}</option>
+        </select>
+      </div>
+
       <button class="btn-reset" @click="resetAll">✖ Clear all boxes</button>
       <button class="btn-save" @click="save" :disabled="saving">
         {{ saving ? 'Saving...' : '💾 Save & send alerts' }}
@@ -150,6 +159,7 @@ export default {
       exporting:false,
       emailReport: null,
       search:'',
+      provinceFilter:'',
     };
   },
 
@@ -159,6 +169,12 @@ export default {
       if (!this.savedAt) return '';
       const d = new Date(this.savedAt);
       return d.toLocaleString('en-US');
+    },
+
+
+    provinceOptions(){
+      const set = new Set(this.rows.map((r) => r.province || 'Unassigned'));
+      return[...set].sort((a,b) => a.localeCompare(b));
     },
 
     groupedRows(){
@@ -186,6 +202,7 @@ export default {
         }
         stt += 1;
         if(!matches(row)) continue;
+        if (this.provinceFilter && province !== this.provinceFilter) continue;
         if(!headerAdded){
           items.push({type:'header',province});
           headerAdded =true;
