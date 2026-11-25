@@ -7,6 +7,21 @@
     <h1>📶 SIM / Alarm Check</h1>
     <PageTabs page="simcheck" @navigate="$emit('navigate', $event)" />
 
+    <div class="summary-bar">
+      <div class="stat-card">
+        <div class="stat-num">{{ summaryStats.total }}</div>
+        <div class="stat-label">Total today</div>
+      </div>
+      <div class="stat-card ok">
+        <div class="stat-num">{{ summaryStats.ok }}</div>
+        <div class="stat-label">ปกติ</div>
+      </div>
+      <div class="stat-card fault">
+        <div class="stat-num">{{ summaryStats.faults }}</div>
+        <div class="stat-label">⚠️ พบปัญหา</div>
+      </div>
+    </div>
+
     <div class="toolbar">
       <label>Date: <input type="date" v-model="date" @change="load" /></label>
       <button class="btn-save" :disabled="saving" @click="save">
@@ -142,6 +157,12 @@ export default{
     provinceOptions (){
       const set = new Set(this.rows.map((r) => r.province || 'Unassigned'));
       return [...set].sort((a, b) => a.localeCompare(b));
+    },
+
+    summaryStats(){
+      const total = this.rows.length;
+      const faults = this.rows.filter((r) => this.isFault(r)).length;
+      return {total, faults, ok: total - faults };
     },
 
     groupedRows(){

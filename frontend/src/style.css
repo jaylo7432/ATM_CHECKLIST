@@ -1132,3 +1132,62 @@ select.province-select {
   background-image: none !important;
   cursor: pointer;
 }
+
+.summary-bar{
+  display: flex;
+  gap: 10px;
+  margin: 10px 0 14px;
+}
+
+.stat-card {
+  flex:1 0 auto; 
+  min-width:110px; 
+  background:#fff; 
+  border:1px solid var(--border); 
+  border-radius:10px;
+  padding:8px 14px; 
+  display:flex; 
+  flex-direction:column; 
+  gap:2px;
+}
+.stat-num { 
+  font-size:18px; 
+  font-weight:700; 
+  color:#1f2937; 
+}
+
+
+.stat-label { 
+  font-size:11px; 
+  color:#667085; 
+}
+
+.stat-card.ok .stat-num {
+  color: #059669;
+}
+
+.stat-card.fault .stat-num {
+  color: #d93025;
+}
+
+html.dark .stat-card {
+  background: #232a3b;
+  border-color: #343c50;
+}
+
+
+html.dark .stat-num {
+  color: #e6e9f0;
+}
+
+html .stat-label {
+  color: #aab3c7;
+}
+
+html.dark .stat-card.ok .stat-num {
+  color: #6ee7a0;
+}
+
+html.darl .stat-card-fault .stat-num {
+  color: #ff8a80;
+}
