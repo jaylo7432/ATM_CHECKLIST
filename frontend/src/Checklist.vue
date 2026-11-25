@@ -7,6 +7,21 @@
     <h1>📋 Daily ATM Check</h1>
     <PageTabs page="checklist" @navigate="$emit('navigate', $event)" />
 
+    <div class="summary-bar">
+      <div class="stat-card">
+        <div class="stat-num">{{ summaryStats.total }}</div>
+        <div class="stat-label">Total Day</div>
+      </div>
+      <div class="stat-card ok">
+        <div class="stat-num">{{ summaryStats.ok }}</div>
+        <div class="stat-label">normal</div>
+      </div>
+      <div class="stat-card fault">
+        <div class="stat-num">{{ summaryStats.faults }}</div>
+        <div class="stat-label">⚠️ Problem</div>
+      </div>
+    </div>
+    
     <div class="toolbar">
       <div>
         <label>Inspection date</label>
@@ -175,6 +190,12 @@ export default {
     provinceOptions(){
       const set = new Set(this.rows.map((r) => r.province || 'Unassigned'));
       return[...set].sort((a,b) => a.localeCompare(b));
+    },
+
+    summaryStats(){
+      const total = this.rows.length;
+      const faults = this.rows.filter((r) => this.hasError(r)).length;
+      return{total, faults, ok: total - faults };
     },
 
     groupedRows(){
