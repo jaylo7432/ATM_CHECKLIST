@@ -14,11 +14,11 @@
       </div>
       <div class="stat-card ok">
         <div class="stat-num">{{ summaryStats.ok }}</div>
-        <div class="stat-label">ปกติ</div>
+        <div class="stat-label">Normal</div>
       </div>
       <div class="stat-card fault">
         <div class="stat-num">{{ summaryStats.faults }}</div>
-        <div class="stat-label">⚠️ พบปัญหา</div>
+        <div class="stat-label">⚠️ Problem</div>
       </div>
     </div>
 

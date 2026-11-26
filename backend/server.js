@@ -137,6 +137,8 @@ function getTransporter() {
     port: cfg.smtp.port,
     secure: !!cfg.smtp.secure,
     auth: { user: cfg.smtp.user, pass: cfg.smtp.pass },
+    connectionTimeout: 5000,
+    greetingTimeout:5000,
   });
 }
 
@@ -305,11 +307,11 @@ async function sendAlertEmails(date, rows) {
     };
   }
 
-  for (const row of rowsWithErrors) {
+  await Promise.all(rowsWithErrors.map(async (row) => {
     const failed = getFailedItems(row);
     if (!row.email) {
       results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: 'no email address on file' });
-      continue;
+      return;
     }
     const subject = `[ALERT] Camera/ATM fault - ${row.adress} (${row.atmid}) - ${date}`;
     const html = `
@@ -332,7 +334,9 @@ async function sendAlertEmails(date, rows) {
     } catch (e) {
       results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: String(e.message || e) });
     }
-  }
+  }));
+
+
 
   return {
     sent: results.filter((r) => r.ok).length,
@@ -361,11 +365,11 @@ async function sendSimAlertEmails(date, rows) {
     };
   }
 
-  for (const row of rowsWithErrors) {
+    await Promise.all(rowsWithErrors.map(async (row) => {
     const failed = getSimFailedItems(row);
     if (!row.email) {
       results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: 'no email address on file' });
-      continue;
+      return;
     }
     const subject = `[ALERT] SIM/Alarm fault - ${row.adress} (${row.atmid}) - ${date}`;
     const html = `
@@ -388,7 +392,7 @@ async function sendSimAlertEmails(date, rows) {
     } catch (e) {
       results.push({ atmid: row.atmid, location: row.adress, ok: false, reason: String(e.message || e) });
     }
-  }
+  }));
 
   return {
     sent: results.filter((r) => r.ok).length,
