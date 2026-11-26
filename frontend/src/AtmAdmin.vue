@@ -21,7 +21,7 @@
         <button class="btn-close" @click="closeForm">✕</button>
       </div>
       <div class="form-row">
-        <label>ATMIDasdasdasd :</label>
+        <label>ATMID :</label>
 
         <div class="form-field">
           <input
