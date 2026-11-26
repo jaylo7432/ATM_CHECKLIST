@@ -11,6 +11,13 @@
       <button class="btn-save" @click="openNew">➕ Add new site</button>
       <label>Search: <input type="text" class="search-input"  v-model.trim="search" placeholder="ATMID / address / IP / email" /></label>
       <button v-if="search" class="btn-reset" @click="search = ''">✕</button>
+      <label>Province
+        <select class="search-input province-select" v-model="provinceFilter">
+          <option value="">ALL province</option>
+          <option v-for="p in provinceOptions" :key="p" :value="p">{{ p }}</option>
+        </select>
+      </label>
+
       <span v-if="loading" style="font-size:13px;color:#888;">Loading...</span>
     </div>
 
@@ -209,6 +216,7 @@ export default{
         return{
             sites:[],
             search:'',
+            provinceFilter:'',
             loading:false,
             saving:false,
             formOpen:false,
@@ -236,9 +244,15 @@ export default{
         const name = this.provinceCodes[prefix];
         return name ? `${prefix}-${name}` : 'Unassigned';
       },
+
+      provinceOptions(){
+        const set = new Set(this.sites.map((s) => s.province || 'Unassigned'));
+        return [...set].sort((a, b) => a.localeCompare(b));
+      },
+
       groupedSites(){
         const q = this.search.toLowerCase();
-        const sorted = [...this.sites].filter((s) => !q || [s.atmid, s.adress, s.province, s.ipCam, s.videoIp, s.ip, s.email].some((v) => String(v || '').toLowerCase().includes(q))).sort((a,b) =>{
+                const sorted = [...this.sites].filter((s) => (!this.provinceFilter || (s.province || 'Unassigned') === this.provinceFilter) && (!q || [s.atmid, s.adress, s.province, s.ipCam, s.videoIp, s.ip, s.email].some((v) => String(v || '').toLowerCase().includes(q)))).sort((a,b) =>{
           const pa = String(a.province || '').localeCompare(String(b.province || ''));
           if (pa !== 0) return pa;
           return String(a.atmid || '').localeCompare(String(b.atmid || ''));
